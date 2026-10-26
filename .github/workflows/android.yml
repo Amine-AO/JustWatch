@@ -1,0 +1,106 @@
+
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - development
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build JustWatch APK
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      # 1. Download repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install Java 17
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # 3. Configure Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+
+      # 4. Install required SDK packages
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
+      # 5. Configure Gradle
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+          cache-read-only: false
+
+      # 6. Build Android APK
+      - name: Prepare verified on-device extractor
+        run: python3 scripts/prepare_ytdlp.py
+
+      - name: Build debug APK
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            ./gradlew :app:testDebugUnitTest :app:assembleDebug --stacktrace
+          else
+            gradle :app:testDebugUnitTest :app:assembleDebug --stacktrace
+          fi
+
+      # 7. Upload APK
+      - name: Upload JustWatch APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: JustWatch-debug-APK
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Verify Android screens and navigation
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: bash scripts/run_ui_checks.sh
+
+      - name: Upload UI verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: JustWatch-UI-checks
+          path: |
+            ui-screenshots/
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/
+          if-no-files-found: warn
+
+

@@ -1,0 +1,14 @@
+<resources>
+    <style name="Theme.JustWatch.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/jw_primary</item><item name="colorOnPrimary">@color/jw_on_primary</item>
+        <item name="colorPrimaryContainer">@color/jw_primary_container</item><item name="colorOnPrimaryContainer">@color/jw_on_primary_container</item>
+        <item name="colorSecondaryContainer">@color/jw_primary_container</item><item name="colorOnSecondaryContainer">@color/jw_on_primary_container</item>
+        <item name="colorSurface">@color/jw_surface</item><item name="colorSurfaceVariant">@color/jw_surface_variant</item>
+        <item name="colorOnSurface">@color/jw_on_surface</item><item name="colorOnSurfaceVariant">@color/jw_on_surface_variant</item>
+        <item name="colorOutline">@color/jw_outline</item><item name="android:colorBackground">@color/jw_surface</item>
+        <item name="android:windowBackground">@color/jw_surface</item><item name="android:fontFamily">sans</item>
+        <item name="android:statusBarColor">@android:color/transparent</item><item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item><item name="android:windowLightNavigationBar">true</item>
+    </style>
+    <style name="Theme.JustWatch" parent="Theme.JustWatch.Base"/>
+</resources>

@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:label="Link test fixture" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name=".LinkActivity" android:exported="true">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/><category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:host="facebook.com"/><data android:host="www.facebook.com"/><data android:host="instagram.com"/><data android:host="www.instagram.com"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

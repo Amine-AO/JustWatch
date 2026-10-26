@@ -1,0 +1,40 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <queries>
+        <package android:name="com.facebook.katana"/>
+        <package android:name="com.facebook.lite"/>
+        <package android:name="com.instagram.android"/>
+        <package android:name="com.instagram.lite"/>
+        <package android:name="com.facebook.appmanager"/>
+        <package android:name="com.facebook.system"/>
+        <package android:name="com.facebook.services"/>
+        <package android:name="com.zhiliaoapp.musically"/>
+        <package android:name="com.ss.android.ugc.trill"/>
+    </queries>
+    <application android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/Theme.JustWatch" android:usesCleartextTraffic="false" android:allowBackup="false">
+        <provider android:name="androidx.core.content.FileProvider" android:authorities="${applicationId}.updates" android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/update_paths"/>
+        </provider>
+        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask" android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="instagram.com"/>
+                <data android:scheme="https" android:host="www.instagram.com"/>
+                <data android:scheme="https" android:host="facebook.com"/>
+                <data android:scheme="https" android:host="www.facebook.com"/>
+                <data android:scheme="https" android:host="m.facebook.com"/>
+                <data android:scheme="https" android:host="fb.watch"/>
+                <data android:scheme="https" android:host="tiktok.com"/>
+                <data android:scheme="https" android:host="www.tiktok.com"/>
+                <data android:scheme="https" android:host="vm.tiktok.com"/>
+                <data android:scheme="https" android:host="vt.tiktok.com"/>
+            </intent-filter>
+            <intent-filter><action android:name="android.intent.action.SEND"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="text/plain"/></intent-filter>
+        </activity>
+    </application>
+</manifest>
+

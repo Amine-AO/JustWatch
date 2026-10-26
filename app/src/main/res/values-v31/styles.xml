@@ -1,0 +1,4 @@
+<resources><style name="Theme.JustWatch" parent="Theme.JustWatch.Base">
+    <item name="android:windowSplashScreenBackground">@color/jw_surface</item>
+    <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_logo</item>
+</style></resources>

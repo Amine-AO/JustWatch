@@ -1,0 +1,133 @@
+name: Build Release APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish the verified APK and update metadata to GitHub Releases (main only)
+        required: false
+        default: false
+        type: boolean
+  # Also verify changes to the signing configuration before distributing a build.
+  push:
+    branches: [development, main]
+    paths:
+      - '.github/workflows/release.yml'
+      - 'app/build.gradle.kts'
+      - 'app/src/main/**'
+      - 'scripts/release_metadata.py'
+      - 'scripts/test_release_metadata.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and verify signed APK
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate publication branch
+        if: inputs.publish_release && github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Publish releases from main after merging and testing development."
+          exit 1
+      - name: Verify version rules
+        run: python3 -m unittest discover -s scripts -p test_release_metadata.py
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Restore signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing repository secret: $name"
+              exit 1
+            fi
+          done
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/justwatch-release.jks"
+          test -s "$RUNNER_TEMP/justwatch-release.jks"
+      - name: Prepare extraction engine
+        run: python3 scripts/prepare_ytdlp.py
+      - name: Test and build signed release
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/justwatch-release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: gradle :app:testReleaseUnitTest :app:assembleRelease --no-configuration-cache --stacktrace
+      - name: Verify signature and prepare download
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk dist/JustWatch-release.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/JustWatch-release.apk | tee dist/signing-certificate.txt
+          expected="$(keytool -exportcert -keystore "$RUNNER_TEMP/justwatch-release.jks" -storepass:env ANDROID_KEYSTORE_PASSWORD -alias "$ANDROID_KEY_ALIAS" | sha256sum | cut -d ' ' -f 1)"
+          actual="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' dist/signing-certificate.txt)"
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::APK certificate does not match the configured release key"
+            exit 1
+          fi
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/JustWatch-release.apk > "$RUNNER_TEMP/release-badging.txt"
+          if grep -q application-debuggable "$RUNNER_TEMP/release-badging.txt"; then
+            echo "::error::Release APK must not be debuggable"
+            exit 1
+          fi
+          (cd dist && sha256sum JustWatch-release.apk > SHA256SUMS)
+          echo "Signature verified against your release key; APK is not debuggable." >> "$GITHUB_STEP_SUMMARY"
+          echo "Download the JustWatch-release-APK artifact below and extract JustWatch-release.apk." >> "$GITHUB_STEP_SUMMARY"
+      - name: Prepare versioned update metadata
+        id: metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/release_metadata.py --apk dist/JustWatch-release.apk --badging "$RUNNER_TEMP/release-badging.txt" --output dist/update.json
+      - name: Upload signed release
+        uses: actions/upload-artifact@v4
+        with:
+          name: JustWatch-release-APK
+          path: dist/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish GitHub Release
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_release && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v${{ steps.metadata.outputs.version_name }}
+        run: gh release create "$RELEASE_TAG" dist/JustWatch-release.apk dist/update.json dist/SHA256SUMS dist/signing-certificate.txt --target "$GITHUB_SHA" --title "JustWatch $RELEASE_TAG" --generate-notes
+      - name: Remove temporary signing files
+        if: always()
+        run: rm -f "$RUNNER_TEMP/justwatch-release.jks" "$RUNNER_TEMP/release-badging.txt"
+

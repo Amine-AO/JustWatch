@@ -1,0 +1,11 @@
+/app/src/main/res/raw/justwatch_ytdlp
+/.gradle/
+/build/
+/app/build/
+/local.properties
+
+# Private signing material
+*.jks
+*.keystore
+*.p12
+*.base64

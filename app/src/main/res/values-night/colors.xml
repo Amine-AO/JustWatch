@@ -1,0 +1,8 @@
+<resources>
+    <color name="jw_primary">#86D6B2</color><color name="jw_on_primary">#003827</color>
+    <color name="jw_primary_container">#00513B</color><color name="jw_on_primary_container">#A1F2CE</color>
+    <color name="jw_surface">#101512</color><color name="jw_surface_variant">#26312B</color>
+    <color name="jw_on_surface">#E0E5DF</color><color name="jw_on_surface_variant">#BFC9BF</color>
+    <color name="jw_outline">#899389</color>
+    <color name="jw_warning">#FFB4AB</color>
+</resources>
