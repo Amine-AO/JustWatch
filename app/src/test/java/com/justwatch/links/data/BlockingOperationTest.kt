@@ -11,15 +11,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class BlockingOperationTest {
-    @Test fun cancellationClosesTransportAndInterruptsWorker() = runBlocking {
+    @Test
+    fun cancellationClosesTransportAndInterruptsWorker() = runBlocking {
         val entered = CountDownLatch(1)
         val closed = AtomicBoolean(false)
         val exited = CountDownLatch(1)
         val task = launch {
             blockingOperation(cancel = { closed.set(true) }) {
                 entered.countDown()
-                try { CountDownLatch(1).await() }
-                finally { exited.countDown() }
+                try {
+                    CountDownLatch(1).await()
+                } finally {
+                    exited.countDown()
+                }
             }
             fail("A cancelled operation must not deliver a result")
         }
@@ -31,7 +35,8 @@ class BlockingOperationTest {
         assertTrue(exited.await(5, TimeUnit.SECONDS))
     }
 
-    @Test fun completedOperationReturnsResultWithoutCancellation() = runBlocking {
+    @Test
+    fun completedOperationReturnsResultWithoutCancellation() = runBlocking {
         val closed = AtomicBoolean(false)
         assertEquals(42, blockingOperation(cancel = { closed.set(true) }) { 42 })
         assertFalse(closed.get())

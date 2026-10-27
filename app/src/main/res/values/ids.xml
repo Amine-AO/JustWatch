@@ -1,1 +1,10 @@
-<resources><item name="nav_watch" type="id"/><item name="nav_settings" type="id"/><item name="link_input" type="id"/><item name="loading_title" type="id"/><item name="loading_progress" type="id"/><item name="settings_button" type="id"/><item name="home_page" type="id"/><item name="share_app_button" type="id"/></resources>
+<resources>
+    <item name="nav_watch" type="id"/>
+    <item name="nav_settings" type="id"/>
+    <item name="link_input" type="id"/>
+    <item name="loading_title" type="id"/>
+    <item name="loading_progress" type="id"/>
+    <item name="settings_button" type="id"/>
+    <item name="home_page" type="id"/>
+    <item name="share_app_button" type="id"/>
+</resources>

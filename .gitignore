@@ -1,7 +1,7 @@
 /app/src/main/res/raw/justwatch_ytdlp
 /.gradle/
-/build/
-/app/build/
+**/build/
+/.kotlin/
 /local.properties
 
 # Private signing material

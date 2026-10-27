@@ -1,8 +1,13 @@
 <resources>
-    <color name="jw_primary">#006C4F</color><color name="jw_on_primary">#FFFFFF</color>
-    <color name="jw_primary_container">#A1F2CE</color><color name="jw_on_primary_container">#002116</color>
-    <color name="jw_surface">#F7FAF6</color><color name="jw_surface_variant">#E1EAE2</color>
-    <color name="jw_on_surface">#181D19</color><color name="jw_on_surface_variant">#414942</color>
-    <color name="jw_outline">#717972</color><color name="jw_logo_background">#10251E</color>
+    <color name="jw_primary">#006C4F</color>
+    <color name="jw_on_primary">#FFFFFF</color>
+    <color name="jw_primary_container">#A1F2CE</color>
+    <color name="jw_on_primary_container">#002116</color>
+    <color name="jw_surface">#F7FAF6</color>
+    <color name="jw_surface_variant">#E1EAE2</color>
+    <color name="jw_on_surface">#181D19</color>
+    <color name="jw_on_surface_variant">#414942</color>
+    <color name="jw_outline">#717972</color>
+    <color name="jw_logo_background">#10251E</color>
     <color name="jw_warning">#B3261E</color>
 </resources>

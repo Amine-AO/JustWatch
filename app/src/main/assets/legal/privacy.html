@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>JustWatch Privacy Policy</title>
+  <style>
+    :root { color-scheme: light dark; font: 17px/1.65 system-ui, sans-serif; }
+    body { max-width: 46rem; margin: 0 auto; padding: 1.25rem; overflow-wrap: anywhere; }
+    h1, h2 { line-height: 1.25; } h1 { font-size: 1.9rem; } h2 { margin-top: 2rem; font-size: 1.25rem; }
+    a { color: #006b55; text-underline-offset: .2em; }
+    .date { color: #535f59; } li { margin-bottom: .6rem; }
+    @media (prefers-color-scheme: dark) { body { background: #101713; color: #e1e8e2; } a { color: #89d5b5; } .date { color: #b5c3b9; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>JustWatch Privacy Policy</h1>
+    <p class="date">Effective date: 27 October 2026</p>
+    <p>JustWatch is an Android app maintained by <a href="https://github.com/Amine-AO">Amine-AO</a>. It opens individual shared Instagram, TikTok and Facebook videos without an endless feed. Its <a href="https://github.com/Amine-AO/JustWatch">source code is publicly available on GitHub</a>. This notice describes the app's current data handling.</p>
+
+    <h2>No advertising or analytics</h2>
+    <p>JustWatch does not include advertising, analytics or crash-reporting SDKs. The developer does not operate an extraction server or a service that receives your video links or viewing activity. You do not need a JustWatch account.</p>
+    <p>This does not mean that the app makes no external connections. The services described below receive requests from your device and handle them under their own privacy policies.</p>
+
+    <h2>Links and video playback</h2>
+    <p>The app processes links you type, paste, open or share into JustWatch. It contacts the relevant platform and media delivery servers to retrieve page information and video data. These servers receive your IP address, the requested address, request headers and any other information required for the connection. Link parameters may contain identifiers supplied by the person or platform that shared the link.</p>
+    <p>The extraction engine runs on your phone using yt-dlp and a bundled Python runtime. Its temporary proxy runs on the phone; it is not a remote JustWatch server. Some videos stream directly and others are downloaded into private temporary storage for playback.</p>
+    <p>The Paste button reads the clipboard when you tap it. JustWatch does not continuously monitor your clipboard. The current link and draft can be retained in Android's saved screen state to restore an interrupted session; the app does not maintain a viewing-history database.</p>
+
+    <h2>DNS and other external services</h2>
+    <ul>
+      <li><strong>Cloudflare:</strong> extraction, native playback and update connections use Cloudflare DNS-over-HTTPS to resolve hostnames independently of the device's Private DNS. Cloudflare receives DNS queries and connection information such as your IP address. DNS queries identify hostnames, not the complete video URL. See <a href="https://developers.cloudflare.com/1.1.1.1/privacy/public-dns-resolver/">Cloudflare's public DNS privacy commitments</a>.</li>
+      <li><strong>Video platforms:</strong> requests go directly to Instagram, Facebook, TikTok and their media or service providers as needed for the requested content. See <a href="https://www.facebook.com/privacy/policy/">Meta's privacy policy</a> and <a href="https://www.tiktok.com/legal/page/eea/privacy-policy/en">TikTok's privacy policy</a>. Those services may process information outside your country, including outside the EEA.</li>
+      <li><strong>GitHub:</strong> app and engine update checks and downloads contact GitHub and its delivery infrastructure. GitHub receives connection metadata, including your IP address and the requested release assets. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub's privacy statement</a>.</li>
+    </ul>
+    <p>JustWatch does not control these providers' logs, retention periods or processing locations. Using independent DNS does not make you anonymous or hide your IP address from video servers. A connection test in Settings also contacts the supported platforms and DNS service.</p>
+
+    <h2>App and extraction-engine updates</h2>
+    <p>Signed release builds check GitHub for a newer app release when the app opens, at most once a day. You can also check manually. These checks download release information; downloading an APK requires your action. Before offering installation, JustWatch checks the APK's checksum, package, version and signing certificate. Android asks you to approve installation.</p>
+    <p>Extraction-engine updates are initiated from Settings and downloaded from the official yt-dlp GitHub releases. The app checks the published SHA-256 checksum and engine version before installing and checking the engine locally. Updated engine files remain in private app storage for future use. These updates do not install another Android app.</p>
+
+    <h2>Optional webpage viewer</h2>
+    <p>If you choose the restricted webpage fallback, an Android WebView loads the platform's page with JavaScript and website storage enabled. The page may make additional requests, use cookies, store website data or include the platform's own tracking. This differs from native video playback. WebView uses its own networking behavior and may remain affected by your device's DNS restrictions.</p>
+    <p>Closing the viewer destroys that WebView instance, but does not explicitly erase its cookies, cache or website storage. Do not assume this viewer is an incognito browser. Clearing JustWatch's app storage or uninstalling it removes its locally stored website data.</p>
+
+    <h2>What stays on your device</h2>
+    <ul>
+      <li><strong>Preferences and diagnostics:</strong> theme, link-setup progress, update-check timestamps and before/after link-setting reports are stored locally. Reports can include device model, Android/build version, app version, capture time and the status of relevant installed apps and supported links. They are not automatically sent to the developer. If you copy a report or share it elsewhere, that action discloses it to the destination you choose.</li>
+      <li><strong>Temporary videos:</strong> the app attempts to cancel downloads and delete their files when a video is closed, replaced or its playback session is cleared. Interrupted files can remain after a crash or process termination; the next extraction-runtime initialization attempts to remove leftover video folders. Android can also remove cache files.</li>
+      <li><strong>Updates:</strong> downloaded APKs may remain in the app cache until replaced, removed as obsolete during an update check, cleared by Android or deleted through app settings. Engine/runtime files and preferences persist until replaced or app storage is cleared.</li>
+    </ul>
+    <p>Use Android Settings → Apps → JustWatch → Storage to clear cached files or all app data. Clearing the cache does not reset preferences, installed engine files or all website data. Clearing app data or uninstalling removes the app's private local data. Copies you exported, clipboard copies and third-party server records are not erased by that action. Android app backup is disabled for JustWatch.</p>
+
+    <h2>Permissions</h2>
+    <p>Internet and network-state access support playback, connection checks and updates. Permission to request package installation supports the user-approved app updater. JustWatch checks a limited set of relevant installed social apps and Meta services to help configure link handling. It does not request SMS, contacts, camera, microphone or accessibility-service access.</p>
+
+    <h2>Privacy questions and requests</h2>
+    <p>For general questions, contact the maintainer through the <a href="https://github.com/Amine-AO">GitHub profile</a> or <a href="https://github.com/Amine-AO/JustWatch/issues">JustWatch issue tracker</a>. GitHub issues are public. Do not post private video links, account details, diagnostic reports or other personal information. If a request needs private information, ask for a private contact method before sharing it.</p>
+    <p>The developer receives information you choose to provide in support discussions and uses it to answer questions and maintain the app. Where GDPR applies, the basis for this processing is the developer's legitimate interest in responding to requests and maintaining the project (Article 6(1)(f)); you may object to that processing. GitHub hosts these discussions under its own policies; public issue history may remain available. Personal details are needed only for as long as necessary to address the request, while technical issue history may be retained for project maintenance. Ask the maintainer to remove or redact personal details when they are no longer needed. Copies retained by GitHub or others are subject to their own policies. Share only what is necessary. Requests about records held by a platform, Cloudflare or GitHub should be directed to that provider.</p>
+    <p>Where applicable, data-protection law may give you rights to access, correct, erase or restrict processing of your personal data, object to processing, request portability, withdraw consent where processing relies on consent, and complain to a supervisory authority. What applies depends on the processing and the party responsible for it. The developer cannot retrieve data that exists only on your phone.</p>
+
+    <h2>About JustWatch</h2>
+    <p>JustWatch is an independent project and is not affiliated with or endorsed by Meta, Instagram, Facebook or TikTok. Use it only for content you are entitled to access and respect the rights of its creators. Playback availability depends on the platforms and your network.</p>
+    <p>Changes to data handling will be reflected in this notice with a new effective date. The notice is bundled with the app and published with the source code. A newer online notice may describe a newer app version.</p>
+  </main>
+</body>
+</html>

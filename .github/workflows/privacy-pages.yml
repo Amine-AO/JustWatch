@@ -1,0 +1,43 @@
+name: Publish privacy policy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - app/src/main/assets/legal/**
+      - .github/workflows/privacy-pages.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: privacy-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Prepare public notice
+        run: |
+          mkdir -p public
+          cp app/src/main/assets/legal/privacy.html public/privacy.html
+          cp app/src/main/assets/legal/privacy.html public/index.html
+          touch public/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
