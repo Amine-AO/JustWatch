@@ -4,6 +4,8 @@ import android.content.Context
 import com.justwatch.links.AppUpdateInfo
 import com.justwatch.links.AppUpdates
 import java.io.File
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 
 internal class UpdateRepository(private val context: Context) {
     suspend fun latest(): AppUpdateInfo? = operation { operation ->
@@ -13,9 +15,11 @@ internal class UpdateRepository(private val context: Context) {
 
     sealed interface Download {
         data class Progress(val percent: Int) : Download
+
         data class Complete(val file: File) : Download
     }
-    fun download(info: AppUpdateInfo): kotlinx.coroutines.flow.Flow<Download> = kotlinx.coroutines.flow.channelFlow {
+
+    fun download(info: AppUpdateInfo): Flow<Download> = channelFlow {
         val file = operation { operation ->
             AppUpdates.download(context, info, operation) { trySend(Download.Progress(it)) }
         }

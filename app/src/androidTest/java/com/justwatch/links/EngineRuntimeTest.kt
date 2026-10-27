@@ -10,7 +10,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class EngineRuntimeTest {
-    @Test fun officialEngineRunsAndRejectedUpdateRestoresIt() {
+    @Test
+    fun officialEngineRunsAndRejectedUpdateRestoresIt() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         YoutubeDL.getInstance().init(context)
         val store = EngineUpdates.store(context)
@@ -18,14 +19,18 @@ class EngineRuntimeTest {
         context.resources.openRawResource(R.raw.justwatch_ytdlp).use { input ->
             store.staged.outputStream().use { input.copyTo(it) }
         }
-        fun runtimeVersion(): String = YoutubeDL.getInstance().execute(
-            YoutubeDLRequest(emptyList<String>()).apply { addOption("--version") }
-        ).out.trim()
+        fun runtimeVersion(): String =
+            YoutubeDL.getInstance()
+                .execute(YoutubeDLRequest(emptyList<String>()).apply { addOption("--version") })
+                .out
+                .trim()
         store.install { assertEquals(EngineStore.BUNDLED_VERSION, runtimeVersion()) }
         val digest = EngineStore.digest(store.target)
         store.target.copyTo(store.staged)
-        try { store.install { error("Simulated incompatible runtime") }; fail("Expected rejection") }
-        catch (_: IllegalStateException) { }
+        try {
+            store.install { error("Simulated incompatible runtime") }
+            fail("Expected rejection")
+        } catch (_: IllegalStateException) {}
         assertEquals(digest, EngineStore.digest(store.target))
         assertEquals(EngineStore.BUNDLED_VERSION, runtimeVersion())
         assertFalse(store.staged.exists())

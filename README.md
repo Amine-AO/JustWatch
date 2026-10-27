@@ -10,7 +10,7 @@
 
 ### Enjoy the video. Keep your time.
 
-Open the videos shared with you wihtout the endless scrolling.
+Open the videos shared with you without the endless scrolling.
 
 JustWatch opens shared Instagram, TikTok and Facebook videos on Android, without needing their apps. Watch what your friends send you, then carry on with your day.
 

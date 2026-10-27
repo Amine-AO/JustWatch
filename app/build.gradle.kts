@@ -12,14 +12,14 @@ android {
         minSdk = 26
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 12
-        versionName = "1.0.1"
+        versionCode = 13
+        versionName = "1.0.2"
     }
     signingConfigs {
         create("release") {
-            System.getenv("ANDROID_KEYSTORE_FILE")?.takeIf { it.isNotBlank() }?.let {
-                storeFile = file(it)
-            }
+            System.getenv("ANDROID_KEYSTORE_FILE")
+                ?.takeIf { it.isNotBlank() }
+                ?.let { storeFile = file(it) }
             storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
             keyAlias = System.getenv("ANDROID_KEY_ALIAS")
             keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
@@ -33,7 +33,10 @@ android {
         }
     }
     packaging { jniLibs { useLegacyPackaging = true } }
-    compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     kotlinOptions { jvmTarget = "17" }
 }
 
@@ -59,5 +62,3 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.5.1")
     implementation("androidx.media3:media3-datasource-okhttp:1.5.1")
 }
-
-

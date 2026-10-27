@@ -1,1 +1,4 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"><item android:id="@id/nav_watch" android:icon="@drawable/ic_watch" android:title="Watch"/><item android:id="@id/nav_settings" android:icon="@drawable/ic_settings" android:title="Settings"/></menu>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@id/nav_watch" android:icon="@drawable/ic_watch" android:title="@string/watch"/>
+    <item android:id="@id/nav_settings" android:icon="@drawable/ic_settings" android:title="@string/settings"/>
+</menu>

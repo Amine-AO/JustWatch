@@ -11,15 +11,16 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 internal suspend fun <T> blockingOperation(cancel: () -> Unit, block: () -> T): T = coroutineScope {
     suspendCancellableCoroutine { continuation ->
-        val task = launch(Dispatchers.IO) {
-            try {
-                continuation.resume(runInterruptible { block() })
-            } catch (error: CancellationException) {
-                continuation.cancel(error)
-            } catch (error: Exception) {
-                continuation.resumeWithException(error)
+        val task =
+            launch(Dispatchers.IO) {
+                try {
+                    continuation.resume(runInterruptible { block() })
+                } catch (error: CancellationException) {
+                    continuation.cancel(error)
+                } catch (error: Exception) {
+                    continuation.resumeWithException(error)
+                }
             }
-        }
         continuation.invokeOnCancellation {
             cancel()
             task.cancel()

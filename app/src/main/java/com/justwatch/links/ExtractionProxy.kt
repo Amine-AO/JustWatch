@@ -1,6 +1,7 @@
 package com.justwatch.links
 
 import java.io.Closeable
+import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.ServerSocket
@@ -9,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 
 /**
- * Short-lived loopback CONNECT proxy. TLS stays end-to-end in yt-dlp; only
- * hostname resolution and TCP connection establishment happen in the app.
+ * Short-lived loopback CONNECT proxy. TLS stays end-to-end in yt-dlp; only hostname resolution and
+ * TCP connection establishment happen in the app.
  */
 internal class ExtractionProxy(private val connect: (String) -> Socket) : Closeable {
     private val server = ServerSocket(0, 16, InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1)))
@@ -25,7 +26,10 @@ internal class ExtractionProxy(private val connect: (String) -> Socket) : Closea
                 try {
                     val client = server.accept()
                     sockets.add(client)
-                    if (closed) { client.close(); break }
+                    if (closed) {
+                        client.close()
+                        break
+                    }
                     workers.execute { tunnel(client) }
                 } catch (_: Exception) {
                     if (!closed) close()
@@ -48,9 +52,13 @@ internal class ExtractionProxy(private val connect: (String) -> Socket) : Closea
             val request = header.lineSequence().first().trim().split(' ')
             val authority = request.getOrNull(1).orEmpty()
             val host = authority.removeSuffix(":443")
-            if (request.size != 3 || request[0] != "CONNECT" ||
-                !authority.endsWith(":443") ||
-                !host.matches(Regex("[A-Za-z0-9.-]+")) || host.length > 253) {
+            if (
+                request.size != 3 ||
+                    request[0] != "CONNECT" ||
+                    !authority.endsWith(":443") ||
+                    !host.matches(Regex("[A-Za-z0-9.-]+")) ||
+                    host.length > 253
+            ) {
                 client.getOutputStream().write("HTTP/1.1 403 Forbidden\r\n\r\n".toByteArray())
                 return
             }
@@ -64,9 +72,14 @@ internal class ExtractionProxy(private val connect: (String) -> Socket) : Closea
                 flush()
             }
             workers.execute {
-                try { input.copyTo(remote.getOutputStream()) } catch (_: Exception) {
+                try {
+                    input.copyTo(remote.getOutputStream())
+                } catch (_: Exception) {
                     // Closing either endpoint terminates both directions.
-                } finally { remote.close(); client.close() }
+                } finally {
+                    remote.close()
+                    client.close()
+                }
             }
             remote.getInputStream().copyTo(client.getOutputStream())
         } catch (_: Exception) {
@@ -90,8 +103,14 @@ internal class ExtractionProxy(private val connect: (String) -> Socket) : Closea
         fun connectPublic(host: String, lookup: (String) -> List<InetAddress>): Socket {
             var failure: Exception? = null
             for (address in lookup(host)) {
-                if (address.isAnyLocalAddress || address.isLoopbackAddress ||
-                    address.isLinkLocalAddress || address.isSiteLocalAddress || address.isMulticastAddress) continue
+                if (
+                    address.isAnyLocalAddress ||
+                        address.isLoopbackAddress ||
+                        address.isLinkLocalAddress ||
+                        address.isSiteLocalAddress ||
+                        address.isMulticastAddress
+                )
+                    continue
                 val socket = Socket()
                 try {
                     socket.connect(InetSocketAddress(address, 443), 8_000)
@@ -101,7 +120,7 @@ internal class ExtractionProxy(private val connect: (String) -> Socket) : Closea
                     socket.close()
                 }
             }
-            throw java.io.IOException("No reachable public address", failure)
+            throw IOException("No reachable public address", failure)
         }
     }
 }
