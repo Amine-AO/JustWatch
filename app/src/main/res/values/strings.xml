@@ -130,4 +130,6 @@
     <string name="forward_10_seconds">Forward 10 seconds</string>
     <string name="links_unchanged">Android saved no change to JustWatch’s link selections during this visit.</string>
     <string name="links_changed">Android saved a change to JustWatch’s link selections. The report includes both states.</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="privacy_policy_description">Data, external services and local storage</string>
 </resources>

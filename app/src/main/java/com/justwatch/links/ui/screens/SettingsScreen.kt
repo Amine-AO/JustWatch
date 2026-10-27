@@ -21,6 +21,7 @@ internal class SettingsScreen(activity: AppCompatActivity, model: WatchViewModel
     private lateinit var themeDescription: TextView
     private lateinit var linkSummary: TextView
     private lateinit var engineDescription: TextView
+    private var privacyDialog: PrivacyDialog? = null
 
     init {
         build()
@@ -32,6 +33,11 @@ internal class SettingsScreen(activity: AppCompatActivity, model: WatchViewModel
         engineDescription.text =
             if (state.updatingEngine) getString(R.string.checking_for_updates)
             else getString(R.string.engine_version, state.engineVersion)
+    }
+
+    override fun close() {
+        privacyDialog?.dismiss()
+        privacyDialog = null
     }
 
     private fun build() {
@@ -110,6 +116,15 @@ internal class SettingsScreen(activity: AppCompatActivity, model: WatchViewModel
         space(body, 6)
         body.addView(text(getString(R.string.home_headline), 14f, muted = true))
         space(body, 16)
+        settingRow(
+            body,
+            getString(R.string.privacy_policy),
+            getString(R.string.privacy_policy_description),
+            R.drawable.ic_info,
+        ) {
+            privacyDialog?.dismiss()
+            privacyDialog = PrivacyDialog(activity).also { it.show() }
+        }
         settingRow(
             body,
             getString(R.string.creator_credit),

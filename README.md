@@ -53,9 +53,11 @@ You can watch the video you were sent, then close it and move on. Playback still
 
 ## Playback and privacy
 
-Videos are prepared on your phone, without a JustWatch account or an external extraction server. Temporary video files are removed when you close the video. Compatible TikTok videos can play while their local download continues; others finish downloading first.
+Videos are prepared on your phone, without a JustWatch account or an external extraction server. JustWatch attempts to remove temporary video files when you close the video. Files left after an interruption are cleaned up when the extraction runtime next initializes. Compatible TikTok videos can play while their local download continues; others finish downloading first.
 
-The app contacts the relevant video platforms, DNS providers, and GitHub for extraction engine updates. An internet connection is required.
+JustWatch includes no advertising, analytics or crash-reporting SDKs. The developer does not operate a server that receives your video links or viewing activity. The app connects to video platforms and their media servers, Cloudflare for DNS-over-HTTPS, and GitHub for app and extraction-engine updates. These providers receive connection information such as your IP address. An internet connection is required.
+
+The optional webpage viewer can use platform cookies and website storage; closing it does not erase that data. See **Settings → Privacy policy** or the [privacy policy source](app/src/main/assets/legal/privacy.html) for details about connections, local storage and deletion. The same notice can be published through GitHub Pages using the [privacy publishing guide](docs/PRIVACY_MAINTENANCE.md).
 
 Private, deleted, login-required or restricted videos may not play. Support can also be affected by changes to the platforms.
 
