@@ -83,7 +83,11 @@ internal class VideoScreen(activity: AppCompatActivity, model: WatchViewModel) :
         file: File? = null,
         growing: GrowingDownload? = null,
     ) {
-        val body = column().apply { setPadding(dp(16), dp(8), dp(16), dp(12)) }
+        val body =
+            column().apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                setPadding(dp(16), dp(8), dp(16), dp(12))
+            }
         container.addView(body, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
         val stage =
             FrameLayout(this).apply {
@@ -115,7 +119,10 @@ internal class VideoScreen(activity: AppCompatActivity, model: WatchViewModel) :
         playerView.findViewById<View>(R.id.player_fullscreen).setOnClickListener {
             setFullscreen(!fullscreen)
         }
-        stage.addView(playerView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        stage.addView(
+            playerView,
+            FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT, Gravity.CENTER),
+        )
         val buffering = CircularProgressIndicator(this).apply { isIndeterminate = true }
         stage.addView(buffering, FrameLayout.LayoutParams(dp(56), dp(56), Gravity.CENTER))
         exo.addListener(
@@ -146,6 +153,7 @@ internal class VideoScreen(activity: AppCompatActivity, model: WatchViewModel) :
         body.addView(
             text(getString(R.string.player_ready), 14f, muted = true).apply {
                 gravity = Gravity.CENTER
+                textAlignment = View.TEXT_ALIGNMENT_CENTER
             },
             LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT),
         )
