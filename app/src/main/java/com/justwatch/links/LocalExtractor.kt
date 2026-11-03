@@ -1,6 +1,8 @@
 package com.justwatch.links
 
 import android.content.Context
+import com.justwatch.links.data.ContentMetadata
+import com.justwatch.links.data.MediaResolution
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import java.io.File
@@ -54,11 +56,11 @@ object LocalExtractor {
         }
     }
 
-    private fun request(url: String) =
+    private fun request(url: String, firstOnly: Boolean = true) =
         YoutubeDLRequest(url).apply {
             addOption("-f", "best[ext=mp4]/best")
             addOption("--no-playlist")
-            addOption("--playlist-items", "1")
+            if (firstOnly) addOption("--playlist-items", "1") else addOption("--playlist-end", "50")
             addOption("--socket-timeout", "12")
             addOption("--retries", "1")
             addOption("--extractor-retries", "1")
@@ -82,14 +84,15 @@ object LocalExtractor {
             }
         }
 
-    suspend fun resolve(context: Context, url: String): Pair<ExtractedMedia?, String> =
+    internal suspend fun resolve(context: Context, url: String): MediaResolution =
         runtime.withLock {
             runInterruptible(Dispatchers.IO) {
                 initialize(context.applicationContext)
-                val request = request(url)
-                val info = throughProxy(request) { YoutubeDL.getInstance().getInfo(request) }
-                ExtractedMedia.fromInfo(info) to
-                    "Extraction engine returned no direct HTTPS stream."
+                val request = request(url, firstOnly = false)
+                request.addOption("--dump-single-json")
+                request.addOption("--skip-download")
+                val json = throughProxy(request) { YoutubeDL.getInstance().execute(request).out }
+                ContentMetadata.extractor(json)
             }
         }
 

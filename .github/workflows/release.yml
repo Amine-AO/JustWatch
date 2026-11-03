@@ -76,6 +76,9 @@ jobs:
           umask 077
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/justwatch-release.jks"
           test -s "$RUNNER_TEMP/justwatch-release.jks"
+      - name: Validate translations
+        run: python3 scripts/check_translations.py
+
       - name: Prepare extraction engine
         run: python3 scripts/prepare_ytdlp.py
       - name: Test and build signed release

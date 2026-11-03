@@ -11,6 +11,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.justwatch.links.BuildConfig
 import com.justwatch.links.R
+import com.justwatch.links.ui.AppLanguages
 import com.justwatch.links.ui.Screen
 import com.justwatch.links.ui.WatchState
 import com.justwatch.links.ui.WatchViewModel
@@ -81,6 +82,14 @@ internal class SettingsScreen(activity: AppCompatActivity, model: WatchViewModel
             settingRow(body, getString(R.string.theme), themeName(), R.drawable.ic_theme) {
                 chooseTheme()
             }
+        settingRow(
+            body,
+            getString(R.string.language),
+            AppLanguages.label(activity),
+            R.drawable.ic_language,
+        ) {
+            AppLanguages.choose(activity)
+        }
         section(body, getString(R.string.section_app_updates))
         settingRow(
             body,

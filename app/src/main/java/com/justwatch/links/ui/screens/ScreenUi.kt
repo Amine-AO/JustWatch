@@ -35,6 +35,8 @@ internal open class ScreenUi(val activity: AppCompatActivity) : ContextWrapper(a
 
     fun text(value: String, size: Float = 16f, muted: Boolean = false, bold: Boolean = false) =
         TextView(this).apply {
+            textDirection = View.TEXT_DIRECTION_LOCALE
+            textAlignment = View.TEXT_ALIGNMENT_VIEW_START
             text = value
             textSize = size
             setTextColor(color(if (muted) R.color.jw_on_surface_variant else R.color.jw_on_surface))
@@ -93,7 +95,13 @@ internal open class ScreenUi(val activity: AppCompatActivity) : ContextWrapper(a
         }
 
     fun fullButton(parent: LinearLayout, button: View) {
-        parent.addView(button, LinearLayout.LayoutParams(MATCH_PARENT, dp(60)))
+        parent.addView(
+            button,
+            LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                topMargin = dp(2)
+                bottomMargin = dp(2)
+            },
+        )
     }
 
     fun card(parent: LinearLayout, tonal: Boolean = false): LinearLayout {
@@ -135,7 +143,7 @@ internal open class ScreenUi(val activity: AppCompatActivity) : ContextWrapper(a
         val row =
             LinearLayout(this).apply {
                 gravity = Gravity.CENTER_VERTICAL
-                setPadding(dp(12), dp(16), dp(8), dp(16))
+                setPaddingRelative(dp(12), dp(16), dp(8), dp(16))
                 minimumHeight = dp(80)
                 isClickable = true
                 isFocusable = true
@@ -152,7 +160,7 @@ internal open class ScreenUi(val activity: AppCompatActivity) : ContextWrapper(a
             },
             LinearLayout.LayoutParams(dp(24), dp(24)),
         )
-        val labels = column().apply { setPadding(dp(18), 0, dp(8), 0) }
+        val labels = column().apply { setPaddingRelative(dp(18), 0, dp(8), 0) }
         labels.addView(text(title, 16f, bold = true))
         val detail = text(description, 13f, muted = true)
         labels.addView(detail)

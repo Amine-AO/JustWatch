@@ -13,6 +13,8 @@ import com.justwatch.links.ExtractedMedia
 import com.justwatch.links.GrowingDownload
 import com.justwatch.links.LinkPolicy
 import com.justwatch.links.R
+import com.justwatch.links.data.FailureKind
+import com.justwatch.links.data.MediaFailure
 import com.justwatch.links.data.MediaState
 import com.justwatch.links.data.SettingsRepository
 import com.justwatch.links.data.UpdateRepository
@@ -40,6 +42,8 @@ internal class WatchViewModel(
                 theme = settings.theme,
                 wizardSeen = settings.wizardSeen,
                 wizardActive = settings.wizardActive,
+                positionMs = savedState["position"] ?: 0L,
+                wasPlaying = savedState["playing"] ?: false,
                 draft = savedState["draft"] ?: "",
                 screen =
                     savedState.get<String>("screen")?.let { value ->
@@ -56,6 +60,8 @@ internal class WatchViewModel(
         savedState["screen"] = current.screen.name
         savedState["draft"] = current.draft
         savedState["url"] = current.url
+        savedState["position"] = current.positionMs
+        savedState["playing"] = current.wasPlaying
     }
 
     private var playback: Job? = null
@@ -66,7 +72,12 @@ internal class WatchViewModel(
     init {
         val restored = state.value
         if (restored.screen in setOf(Screen.LOADING, Screen.PLAYER, Screen.ERROR, Screen.WEB)) {
-            if (restored.url.isNotEmpty()) open(restored.url) else navigate(Screen.HOME)
+            if (restored.url.isNotEmpty()) {
+                open(restored.url)
+                update {
+                    it.copy(positionMs = restored.positionMs, wasPlaying = restored.wasPlaying)
+                }
+            } else navigate(Screen.HOME)
         }
         refresh()
     }
@@ -95,6 +106,11 @@ internal class WatchViewModel(
         }
     }
 
+    fun useAnotherLink() {
+        draft(state.value.url)
+        navigate(Screen.HOME)
+    }
+
     fun troubleshooting() {
         stopPlayback()
         settings.wizard(false)
@@ -114,6 +130,8 @@ internal class WatchViewModel(
                 screen = Screen.LOADING,
                 url = url,
                 media = MediaState.Loading(),
+                positionMs = 0,
+                wasPlaying = false,
                 inputError = null,
             )
         }
@@ -135,6 +153,11 @@ internal class WatchViewModel(
             }
     }
 
+    fun rememberPlayback(positionMs: Long, playing: Boolean) {
+        if (state.value.screen == Screen.PLAYER)
+            update { it.copy(positionMs = positionMs.coerceAtLeast(0), wasPlaying = playing) }
+    }
+
     fun playbackFailed(details: String) {
         val current = state.value
         val ready = current.media as? MediaState.Ready ?: return
@@ -145,7 +168,12 @@ internal class WatchViewModel(
             open(current.url, local = true, progressive = false)
         } else {
             playback?.cancel()
-            update { it.copy(screen = Screen.ERROR, media = MediaState.Failed(details)) }
+            update {
+                it.copy(
+                    screen = Screen.ERROR,
+                    media = MediaState.Failed(MediaFailure(FailureKind.PLAYBACK, details)),
+                )
+            }
             viewModelScope.launch { videos.discard(ready) }
         }
     }
@@ -189,7 +217,13 @@ internal class WatchViewModel(
                 update {
                     it.copy(
                         links = report,
-                        comparison = settings.comparison,
+                        comparison =
+                            settings.comparison?.let { changed ->
+                                UiText(
+                                    if (changed) R.string.links_changed
+                                    else R.string.links_unchanged
+                                )
+                            },
                         engineVersion = version,
                     )
                 }

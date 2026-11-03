@@ -23,3 +23,44 @@ UI copy and accessibility labels are in `res/values/strings.xml`. ViewModel mess
 ## Verification
 
 The Android workflow runs JVM tests, builds the APK, and runs emulator tests for navigation, link setup, local playback, progressive playback, and Activity recreation. The release workflow also verifies signing and version metadata. These checks use local video fixtures. They do not prove that every Instagram, TikTok, or Facebook URL remains extractable on every network.
+
+## Content outcomes and recovery
+
+`MediaResolution` distinguishes a playable stream, explicit non-video content, and
+an unresolved result. `ContentMetadata` inspects extractor metadata and primary
+page-linked JSON-LD; it does not treat an Open Graph thumbnail, a `/p/` URL, missing
+formats, a partial collection, or an extraction failure as proof of a photo post.
+For mixed collections it selects the first playable video, carrying its request
+headers. Facebook keeps native page resolution first, with local extraction as a
+fallback. Instagram keeps local extraction first. Work remains on IO.
+
+`MediaFailure` holds a typed reason and separate raw diagnostics. Only the data
+boundary interprets explicit upstream error messages. `FailureScreen` maps reasons
+to resource IDs and recovery actions; it does not classify errors or fetch data.
+Unknown causes stay unknown. Technical messages are collapsed and remain in their
+original language. A non-video result returns the user to an editable link field.
+
+## Languages and direction
+
+Android resources contain English plus Arabic, French, German, Spanish, Portuguese,
+Simplified Chinese, and Tamazight in Latin and Tifinagh scripts. AppCompat's per-app
+locale API owns the language preference, with automatic storage on older Android
+versions and system integration on Android 13+. The empty locale list means System
+default. There is no second language preference in the ViewModel or repository.
+
+Locale changes recreate the Activity normally. Navigation, link drafts and media
+preparation remain in the existing ViewModel. The ViewModel also retains the last
+playback position and playing state sampled when the player stops, so a recreated
+player can resume at that position. Process restoration re-prepares the source;
+it does not reuse stale temporary files.
+
+Layout direction is inherited from Android. Arabic is RTL; both Tamazight scripts
+are LTR. UI spacing uses relative edges where asymmetric, and navigation arrows
+mirror. The URL field and playback controller stay LTR. Dynamic Latin names in
+translated messages are bidi-wrapped. Diagnostics remain technical text rather
+than translated, persisted UI messages.
+
+The full privacy notice remains a single English HTML source. A translated summary
+explicitly offers the full English notice. Summaries are not presented as complete
+legal translations. The notice viewer remains offline with JavaScript and network
+loading disabled.

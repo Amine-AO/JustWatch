@@ -1,10 +1,12 @@
 package com.justwatch.links.ui.screens
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.BidiFormatter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.justwatch.links.LinkAssociations
 import com.justwatch.links.R
 import com.justwatch.links.ui.Screen
+import com.justwatch.links.ui.UiText
 import com.justwatch.links.ui.WatchState
 import com.justwatch.links.ui.WatchViewModel
 
@@ -15,7 +17,7 @@ internal class LinkSetupScreen(activity: AppCompatActivity, model: WatchViewMode
     private data class Content(
         val wizard: Boolean,
         val report: LinkAssociations.Report?,
-        val comparison: String?,
+        val comparison: UiText?,
     )
 
     private var rendered: Content? = null
@@ -45,13 +47,27 @@ internal class LinkSetupScreen(activity: AppCompatActivity, model: WatchViewMode
         )
         space(body, 16)
         if (conflict != null) {
-            body.addView(text(getString(R.string.wizard_conflict_description, conflict.label), 16f))
+            body.addView(
+                text(
+                    getString(
+                        R.string.wizard_conflict_description,
+                        BidiFormatter.getInstance().unicodeWrap(conflict.label),
+                    ),
+                    16f,
+                )
+            )
             space(body, 12)
             body.addView(text(conflict.hosts.joinToString("\n"), 14f, muted = true))
             space(body, 20)
             fullButton(
                 body,
-                action(getString(R.string.manage_handler, conflict.label), R.drawable.ic_link) {
+                action(
+                    getString(
+                        R.string.manage_handler,
+                        BidiFormatter.getInstance().unicodeWrap(conflict.label),
+                    ),
+                    R.drawable.ic_link,
+                ) {
                     openLinkSettings(conflict.packageName)
                 },
             )
@@ -109,12 +125,20 @@ internal class LinkSetupScreen(activity: AppCompatActivity, model: WatchViewMode
         for (handler in report.handlers) {
             settingRow(
                 body,
-                getString(R.string.manage_handler, handler.label),
+                getString(
+                    R.string.manage_handler,
+                    BidiFormatter.getInstance().unicodeWrap(handler.label),
+                ),
                 handler.hosts.joinToString(),
                 R.drawable.ic_link,
             ) {
                 MaterialAlertDialogBuilder(this)
-                    .setTitle(getString(R.string.disable_handler_title, handler.label))
+                    .setTitle(
+                        getString(
+                            R.string.disable_handler_title,
+                            BidiFormatter.getInstance().unicodeWrap(handler.label),
+                        )
+                    )
                     .setMessage(getString(R.string.disable_handler_description))
                     .setPositiveButton(getString(R.string.open_app_settings)) { _, _ ->
                         openLinkSettings(handler.packageName)
@@ -126,7 +150,7 @@ internal class LinkSetupScreen(activity: AppCompatActivity, model: WatchViewMode
         val comparison = model.state.value.comparison
         if (comparison != null) {
             section(body, getString(R.string.last_settings_visit))
-            body.addView(text(model.state.value.comparison.orEmpty(), 14f, muted = true))
+            body.addView(text(comparison.resolve(this), 14f, muted = true))
         }
         section(body, getString(R.string.browser_troubleshooting_heading))
         body.addView(

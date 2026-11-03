@@ -1,10 +1,15 @@
 package com.justwatch.links.ui.screens
 
 import android.graphics.Typeface
-import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
 import com.justwatch.links.R
+import com.justwatch.links.data.FailureKind
+import com.justwatch.links.data.MediaFailure
 import com.justwatch.links.data.MediaState
 import com.justwatch.links.ui.Screen
 import com.justwatch.links.ui.WatchState
@@ -13,63 +18,102 @@ import com.justwatch.links.ui.WatchViewModel
 internal class FailureScreen(activity: AppCompatActivity, model: WatchViewModel) :
     AppScreen(activity, model) {
     override val destination = Screen.ERROR
-    private var rendered: Pair<String, String>? = null
+    private var rendered: Pair<String, MediaFailure>? = null
 
     override fun render(state: WatchState) {
-        val content = state.url to (state.media as? MediaState.Failed)?.details.orEmpty()
+        val failure = (state.media as? MediaState.Failed)?.failure ?: return
+        val content = state.url to failure
         if (rendered == content) return
         rendered = content
         container.removeAllViews()
-        renderFailure(content.first, content.second)
-    }
-
-    private fun renderFailure(url: String, status: String) {
-        val body = scrollPage().apply { gravity = Gravity.CENTER_VERTICAL }
-        body.addView(logo(64))
+        val body = scrollPage()
         space(body, 24)
-        body.addView(text(getString(R.string.video_unavailable), 28f, bold = true))
+        body.addView(logo(48))
+        space(body, 20)
+        val (title, description) =
+            when (failure.kind) {
+                FailureKind.NON_VIDEO ->
+                    R.string.post_no_video to R.string.post_no_video_description
+                FailureKind.CONNECTION ->
+                    R.string.connection_failed to R.string.connection_failed_description
+                FailureKind.RESTRICTED ->
+                    R.string.video_restricted to R.string.video_restricted_description
+                FailureKind.PLAYBACK ->
+                    R.string.video_playback_failed to R.string.video_playback_description
+                FailureKind.ENGINE ->
+                    R.string.engine_unavailable_title to R.string.engine_unavailable_description
+                FailureKind.UNKNOWN ->
+                    R.string.video_unavailable to R.string.video_failure_description
+            }
+        body.addView(text(getString(title), 26f, bold = true))
         space(body, 12)
-        val message =
-            if (status.contains("login", true) || status.contains("rate-limit", true))
-                getString(R.string.video_restricted_description)
-            else getString(R.string.video_failure_description)
-        body.addView(text(message, 16f, muted = true))
+        body.addView(text(getString(description), 16f, muted = true))
         space(body, 24)
-        fullButton(
-            body,
-            action(getString(R.string.try_again), R.drawable.ic_play) { model.open(url) },
-        )
+        val nonVideo = failure.kind == FailureKind.NON_VIDEO
+        val engine = failure.kind == FailureKind.ENGINE
         fullButton(
             body,
             action(
-                getString(R.string.try_restricted_webpage),
-                R.drawable.ic_link,
-                outlined = true,
+                getString(
+                    if (nonVideo) R.string.use_another_link
+                    else if (engine) R.string.open_settings else R.string.try_again
+                ),
+                if (nonVideo) R.drawable.ic_link
+                else if (engine) R.drawable.ic_settings else R.drawable.ic_refresh,
             ) {
-                model.navigate(Screen.WEB)
+                if (nonVideo) model.useAnotherLink()
+                else if (engine) model.navigate(Screen.SETTINGS) else model.open(state.url)
             },
         )
-        space(body, 12)
-        body.addView(text(getString(R.string.webpage_dns_notice), 13f, muted = true))
-        val details =
-            text(status, 12f, muted = true).apply {
-                visibility = View.GONE
-                setTextIsSelectable(true)
-                typeface = Typeface.MONOSPACE
+        if (
+            failure.kind in setOf(FailureKind.UNKNOWN, FailureKind.RESTRICTED, FailureKind.PLAYBACK)
+        ) {
+            space(body, 8)
+            fullButton(
+                body,
+                action(
+                    getString(R.string.try_restricted_webpage),
+                    R.drawable.ic_link,
+                    outlined = true,
+                ) {
+                    model.navigate(Screen.WEB)
+                },
+            )
+            space(body, 8)
+            body.addView(text(getString(R.string.webpage_fallback_hint), 13f, muted = true))
+        }
+        if (!nonVideo) textAction(body, getString(R.string.use_another_link), model::useAnotherLink)
+        if (failure.details.isNotBlank()) {
+            space(body, 12)
+            val details =
+                text(failure.details.take(16000), 12f, muted = true).apply {
+                    visibility = View.GONE
+                    setTextIsSelectable(true)
+                    textDirection = View.TEXT_DIRECTION_LTR
+                    typeface = Typeface.MONOSPACE
+                }
+            textAction(body, getString(R.string.show_details)) { button ->
+                val expanded = details.visibility == View.VISIBLE
+                details.visibility = if (expanded) View.GONE else View.VISIBLE
+                button.text =
+                    getString(if (expanded) R.string.show_details else R.string.hide_details)
             }
-        fullButton(
-            body,
-            action(getString(R.string.technical_details), outlined = true) {
-                details.visibility =
-                    if (details.visibility == View.GONE) View.VISIBLE else View.GONE
-            },
-        )
-        body.addView(details)
-        fullButton(
-            body,
-            action(getString(R.string.close), R.drawable.ic_close, outlined = true) {
-                model.navigate(Screen.HOME)
-            },
-        )
+            body.addView(details)
+        }
+    }
+
+    private fun textAction(parent: LinearLayout, label: String, click: () -> Unit) =
+        textAction(parent, label) { _: MaterialButton -> click() }
+
+    private fun textAction(parent: LinearLayout, label: String, click: (MaterialButton) -> Unit) {
+        val button =
+            MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle)
+                .apply {
+                    text = label
+                    isAllCaps = false
+                    minHeight = dp(48)
+                    setOnClickListener { click(this) }
+                }
+        parent.addView(button, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
     }
 }

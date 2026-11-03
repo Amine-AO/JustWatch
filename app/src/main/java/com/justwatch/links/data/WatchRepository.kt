@@ -29,7 +29,7 @@ internal sealed interface MediaState {
         val growing: GrowingDownload? = null,
     ) : MediaState
 
-    data class Failed(val details: String) : MediaState
+    data class Failed(val failure: MediaFailure) : MediaState
 }
 
 internal class WatchRepository(private val context: Context) {
@@ -80,37 +80,65 @@ internal class WatchRepository(private val context: Context) {
                                 }
                             }
                     } else {
-                        var reason = "No public video found."
-                        val media =
-                            if (LinkPolicy.platform(url) == "Instagram") {
-                                try {
-                                    val (media, status) = LocalExtractor.resolve(context, url)
-                                    reason = status
-                                    media
-                                } catch (error: CancellationException) {
-                                    throw error
-                                } catch (error: Exception) {
-                                    reason = error.message.orEmpty()
-                                    null
-                                }
-                            } else null
-                        val resolved =
-                            media
-                                ?: PublicMediaResolver.resolve(url).let { (link, status) ->
-                                    reason += "\n$status"
-                                    link?.let(::ExtractedMedia)
-                                }
-                        emit(resolved?.let { MediaState.Ready(it) } ?: MediaState.Failed(reason))
+                        val platform = LinkPolicy.platform(url)
+                        val first =
+                            if (platform == "Instagram") probe(url)
+                            else PublicMediaResolver.resolve(url)
+                        val result =
+                            if (first is MediaResolution.Unresolved) {
+                                val fallback =
+                                    if (platform == "Instagram") PublicMediaResolver.resolve(url)
+                                    else probe(url)
+                                if (fallback is MediaResolution.Unresolved) {
+                                    val preferred =
+                                        if (first.failure.kind != FailureKind.UNKNOWN) first.failure
+                                        else fallback.failure
+                                    MediaResolution.Unresolved(
+                                        preferred.copy(
+                                            details =
+                                                first.failure.details +
+                                                    "\n" +
+                                                    fallback.failure.details
+                                        )
+                                    )
+                                } else fallback
+                            } else first
+                        emit(
+                            when (result) {
+                                is MediaResolution.Video -> MediaState.Ready(result.media)
+                                MediaResolution.NonVideo ->
+                                    MediaState.Failed(MediaFailure(FailureKind.NON_VIDEO))
+                                is MediaResolution.Unresolved -> MediaState.Failed(result.failure)
+                            }
+                        )
                     }
                 } catch (error: CancellationException) {
                     throw error
                 } catch (error: Exception) {
-                    emit(MediaState.Failed(error.message ?: error.javaClass.simpleName))
+                    emit(MediaState.Failed(MediaFailure.from(error)))
                 } catch (error: LinkageError) {
-                    emit(MediaState.Failed("The extractor runtime could not load on this device."))
+                    emit(
+                        MediaState.Failed(
+                            MediaFailure(
+                                FailureKind.ENGINE,
+                                "The extractor runtime could not load on this device.",
+                            )
+                        )
+                    )
                 }
             }
             .flowOn(Dispatchers.IO)
+
+    private suspend fun probe(url: String): MediaResolution =
+        try {
+            LocalExtractor.resolve(context, url)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            val failure = MediaFailure.from(error)
+            if (failure.kind == FailureKind.NON_VIDEO) MediaResolution.NonVideo
+            else MediaResolution.Unresolved(failure)
+        }
 
     suspend fun discard(media: MediaState.Ready) =
         runInterruptible(Dispatchers.IO) {

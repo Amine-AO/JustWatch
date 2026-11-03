@@ -9,11 +9,13 @@ android {
     compileSdk = 35
     defaultConfig {
         applicationId = "com.justwatch.links"
+        resourceConfigurations +=
+            setOf("en", "ar", "fr", "de", "es", "pt", "b+zh+Hans", "b+zgh+Latn", "b+zgh+Tfng")
         minSdk = 26
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 14
-        versionName = "1.0.3"
+        versionCode = 15
+        versionName = "1.1.0"
     }
     signingConfigs {
         create("release") {
@@ -54,7 +56,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     debugImplementation("androidx.tracing:tracing:1.2.0")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.18.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:okhttp-dnsoverhttps:4.12.0")
     implementation("io.github.junkfood02.youtubedl-android:library:0.18.1")

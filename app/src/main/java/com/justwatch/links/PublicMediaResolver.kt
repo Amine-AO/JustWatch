@@ -1,6 +1,9 @@
 package com.justwatch.links
 
-import android.net.Uri
+import com.justwatch.links.data.ContentMetadata
+import com.justwatch.links.data.FailureKind
+import com.justwatch.links.data.MediaFailure
+import com.justwatch.links.data.MediaResolution
 import java.io.ByteArrayOutputStream
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
@@ -39,27 +42,11 @@ object PublicMediaResolver {
             .replace("\\u0026", "&")
             .replace("\\/", "/")
 
-    private fun structuredVideo(html: String): String? {
-        val keys = listOf("video_url", "playAddr", "downloadAddr", "playUrl")
-        for (key in keys) {
-            val keyPosition = html.indexOf(key)
-            if (keyPosition < 0) continue
-            val httpsStart = html.indexOf("https", keyPosition)
-            if (httpsStart < 0 || httpsStart - keyPosition > 120) continue
-            val stop = html.indexOf('"', httpsStart)
-            if (stop < 0) continue
-            val candidate =
-                html.substring(httpsStart, stop).replace("\\u0026", "&").replace("\\/", "/")
-            val uri = Uri.parse(candidate)
-            if (uri.scheme == "https" && !uri.host.isNullOrBlank()) return candidate
-        }
-        return null
-    }
-
-    suspend fun resolve(url: String): Pair<String?, String> =
+    internal suspend fun resolve(url: String): MediaResolution =
         runInterruptible(Dispatchers.IO) {
-            var media: String? = null
+            var media: ExtractedMedia? = null
             var status = "No public video URL found in page metadata."
+            var outcome: MediaResolution? = null
             try {
                 val request =
                     Request.Builder()
@@ -72,7 +59,17 @@ object PublicMediaResolver {
                 http.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
                         status = "Source returned HTTP ${response.code}."
+                        outcome =
+                            MediaResolution.Unresolved(
+                                MediaFailure(
+                                    if (response.code in setOf(401, 403, 429))
+                                        FailureKind.RESTRICTED
+                                    else FailureKind.UNKNOWN,
+                                    status,
+                                )
+                            )
                     } else {
+                        var completePage = false
                         val html =
                             response.body
                                 ?.byteStream()
@@ -83,7 +80,10 @@ object PublicMediaResolver {
                                     while (remaining > 0) {
                                         val count =
                                             input.read(buffer, 0, minOf(buffer.size, remaining))
-                                        if (count < 0) break
+                                        if (count < 0) {
+                                            completePage = true
+                                            break
+                                        }
                                         out.write(buffer, 0, count)
                                         remaining -= count
                                     }
@@ -109,27 +109,39 @@ object PublicMediaResolver {
                                     )
                             ) {
                                 val candidate = unescape(attrs["content"].orEmpty())
-                                val uri = Uri.parse(candidate)
-                                if (uri.scheme == "https" && !uri.host.isNullOrBlank()) {
-                                    media = candidate
+                                val playable = ExtractedMedia.fromUrl(candidate)
+                                if (playable != null) {
+                                    media = playable
                                     status = "Public media URL discovered."
                                     break
                                 }
                             }
                         }
                         if (media == null) {
-                            media = structuredVideo(html)
-                            status =
-                                if (media != null) "Structured public video URL found."
-                                else "No public video found; HTML size: " + html.length
+                            val scripts =
+                                Regex(
+                                    "<script\\b[^>]*type=[\"']application/ld\\+json[\"'][^>]*>(.*?)</script>",
+                                    setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL),
+                                )
+                            val result =
+                                ContentMetadata.linkedData(
+                                    scripts.findAll(html).map { it.groupValues[1] }.toList(),
+                                    response.request.url.toString(),
+                                )
+                            outcome =
+                                result.takeUnless {
+                                    it == MediaResolution.NonVideo && !completePage
+                                }
                         }
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                status = "Media resolution failed: ${e.javaClass.simpleName}"
+                outcome = MediaResolution.Unresolved(MediaFailure.from(e))
             }
-            media to status
+            media?.let { MediaResolution.Video(it) }
+                ?: outcome
+                ?: MediaResolution.Unresolved(MediaFailure(FailureKind.UNKNOWN, status))
         }
 }

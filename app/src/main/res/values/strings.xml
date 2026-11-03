@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">JustWatch</string>
+    <string name="app_name" translatable="false">JustWatch</string>
     <string name="ready_to_test">Ready to test</string>
     <string name="checking_connection">Checking DNS and HTTPS…</string>
     <string name="back">Back</string>
@@ -11,7 +11,7 @@
     <string name="set_up_links">Set up links</string>
     <string name="link_troubleshooting">Link troubleshooting</string>
     <string name="connection_test">Connection test</string>
-    <string name="platform_title">JustWatch | %1$s</string>
+    <string name="platform_title" translatable="false">JustWatch | %1$s</string>
     <string name="link_settings_fallback">Open Android Settings → Apps → JustWatch → Set as default</string>
     <string name="invalid_link">Use an HTTPS link from Instagram, TikTok or Facebook.</string>
     <string name="engine_update_failed">Update failed. Your installed extractor was kept. %1$s</string>
@@ -44,17 +44,15 @@
     <string name="installer_unavailable">No Android package installer is available.</string>
     <string name="player_ready">Ready when you are. Press Play.</string>
     <string name="close_video">Close video</string>
-    <string name="playback_http_error">The media server returned HTTP %1$d.</string>
-    <string name="playback_failed">Playback failed: %1$s</string>
+    <string name="playback_http_error" translatable="false">The media server returned HTTP %1$d.</string>
+    <string name="playback_failed" translatable="false">Playback failed: %1$s</string>
     <string name="exit_fullscreen">Exit fullscreen</string>
     <string name="fullscreen">Fullscreen</string>
     <string name="video_unavailable">Couldn’t open this video</string>
-    <string name="video_restricted_description">The platform could not provide this video. It may need a login, be unavailable, or be rate-limited.</string>
-    <string name="video_failure_description">This link couldn’t be prepared for playback. You can try again or try the restricted webpage.</string>
+    <string name="video_restricted_description">The platform requires a login or is limiting access to this video. You can try its webpage.</string>
+    <string name="video_failure_description">We couldn’t find a playable video for this link. Try again, or open the webpage.</string>
     <string name="try_again">Try again</string>
-    <string name="try_restricted_webpage">Try restricted webpage</string>
-    <string name="webpage_dns_notice">Webpage playback may be blocked by your DNS settings.</string>
-    <string name="technical_details">Technical details</string>
+    <string name="try_restricted_webpage">Try webpage</string>
     <string name="close">Close</string>
     <string name="checking_for_updates">Checking for updates…</string>
     <string name="engine_version">Version %1$s · Stable releases</string>
@@ -77,9 +75,9 @@
     <string name="check_for_engine_updates">Check for engine updates</string>
     <string name="check_independent_dns_and_https">Check independent DNS and HTTPS</string>
     <string name="about">ABOUT</string>
-    <string name="app_version">JustWatch %1$s</string>
+    <string name="app_version" translatable="false">JustWatch %1$s</string>
     <string name="home_headline">Enjoy the video. Keep your time.</string>
-    <string name="creator_credit">Created by Amine-AO</string>
+    <string name="creator_credit" translatable="false">Created by Amine-AO</string>
     <string name="browser_unavailable">No browser is available</string>
     <string name="use_device_theme">Use device theme</string>
     <string name="light">Light</string>
@@ -117,13 +115,13 @@
     <string name="link_setup_warning">Some links won’t open in JustWatch. Tap to fix.</string>
     <string name="link_setup_prompt">Set up links to open shared videos in JustWatch. Tap to start.</string>
     <string name="share_message">Watch the videos friends send you without getting lost in the feed. JustWatch opens shared Instagram, TikTok and Facebook videos, without needing their apps.\nDownload: https://github.com/Amine-AO/JustWatch</string>
-    <string name="unexpected_stable_release">Unexpected stable release</string>
+    <string name="unexpected_stable_release" translatable="false">Unexpected stable release</string>
     <string name="engine_up_to_date">Extraction engine %1$s is up to date.</string>
-    <string name="missing_release_checksum">Missing release checksum</string>
-    <string name="extractor_checksum_mismatch">Extractor checksum mismatch</string>
-    <string name="extractor_version_mismatch">Extractor version mismatch</string>
+    <string name="missing_release_checksum" translatable="false">Missing release checksum</string>
+    <string name="extractor_checksum_mismatch" translatable="false">Extractor checksum mismatch</string>
+    <string name="extractor_version_mismatch" translatable="false">Extractor version mismatch</string>
     <string name="engine_updated">Updated extraction engine to %1$s.</string>
-    <string name="download_percent">%1$d%%</string>
+    <string name="download_percent" translatable="false">%1$d%%</string>
     <string name="link_group_summary">%1$s: %2$d of %3$d addresses enabled</string>
     <string name="back_10_seconds">Back 10 seconds</string>
     <string name="play">Play</string>
@@ -132,4 +130,24 @@
     <string name="links_changed">Android saved a change to JustWatch’s link selections. The report includes both states.</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="privacy_policy_description">Data, external services and local storage</string>
+    <string name="post_no_video">This post doesn’t contain a video</string>
+    <string name="post_no_video_description">JustWatch currently plays videos only. Choose a link to a video or reel.</string>
+    <string name="connection_failed">Couldn’t connect</string>
+    <string name="connection_failed_description">Check your internet connection, then try again.</string>
+    <string name="video_restricted">This video is restricted</string>
+    <string name="video_playback_failed">Couldn’t play this video</string>
+    <string name="video_playback_description">The video was found, but playback stopped. Try loading it again.</string>
+    <string name="engine_unavailable_title">Video preparation is unavailable</string>
+    <string name="engine_unavailable_description">The extraction engine couldn’t start. Restart the app or check for an app update in Settings.</string>
+    <string name="use_another_link">Use another link</string>
+    <string name="show_details">Show technical details</string>
+    <string name="hide_details">Hide technical details</string>
+    <string name="webpage_fallback_hint">The webpage may ask you to sign in and may be affected by your DNS settings.</string>
+    <string name="language">Language</string>
+    <string name="system_default">System default</string>
+    <string name="privacy_full_english">Read full policy (English)</string>
+    <string name="privacy_summary">JustWatch has no advertising or analytics SDKs and no developer-operated video server. Links are processed on your phone. Video platforms, Cloudflare DNS and GitHub receive requests and your IP address. App-update checks run at most daily when you open the app; update downloads require your action and APK installation requires Android approval. Temporary videos are deleted on a best-effort basis. Settings, diagnostics and engine files stay locally until removed. The optional webpage viewer may retain cookies and website data. Clear app storage to remove local data. Contact Amine-AO through GitHub; issues are public, so do not post personal information.</string>
+    <string name="privacy_english_notice">This is a summary. The full privacy policy is currently available in English.</string>
+    <string name="pause">Pause</string>
+    <string name="playback_progress">Playback progress</string>
 </resources>

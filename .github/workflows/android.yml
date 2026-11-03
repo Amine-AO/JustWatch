@@ -55,6 +55,9 @@ jobs:
           cache-read-only: false
 
       # 6. Build Android APK
+      - name: Validate translations
+        run: python3 scripts/check_translations.py
+
       - name: Prepare verified on-device extractor
         run: python3 scripts/prepare_ytdlp.py
 
