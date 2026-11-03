@@ -21,8 +21,9 @@ internal class SettingsRepository(private val context: Context) {
     val wizardActive
         get() = prefs.getBoolean("link_wizard_active", false)
 
-    val comparison
-        get() = prefs.getString("link_changes", null)
+    val comparison: Boolean?
+        get() =
+            if (prefs.contains("link_changed")) prefs.getBoolean("link_changed", false) else null
 
     val engineVersion
         get() = EngineUpdates.version(context)
@@ -83,6 +84,7 @@ internal class SettingsRepository(private val context: Context) {
                     .edit()
                     .putBoolean("link_capture_pending", false)
                     .putString("link_after", report.details())
+                    .putBoolean("link_changed", !unchanged)
                     .putString(
                         "link_changes",
                         if (unchanged) context.getString(R.string.links_unchanged)

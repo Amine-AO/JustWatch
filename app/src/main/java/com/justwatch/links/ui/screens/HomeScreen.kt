@@ -48,9 +48,17 @@ internal class HomeScreen(activity: AppCompatActivity, model: WatchViewModel) :
     }
 
     override fun layoutChanged(keyboardVisible: Boolean) {
-        share.visibility = if (keyboardVisible) View.GONE else View.VISIBLE
+        val compact = container.height > 0 && container.height < dp(300)
+        share.visibility = if (keyboardVisible || compact) View.GONE else View.VISIBLE
+        refreshLinkNotice()
+        if (keyboardVisible || compact) notice.visibility = View.GONE
         hero.visibility =
-            if (keyboardVisible || (container.height > 0 && container.height < dp(380))) View.GONE
+            if (
+                keyboardVisible ||
+                    (container.height > 0 &&
+                        container.height < dp(420) * maxOf(1f, resources.configuration.fontScale))
+            )
+                View.GONE
             else View.VISIBLE
     }
 
@@ -62,7 +70,8 @@ internal class HomeScreen(activity: AppCompatActivity, model: WatchViewModel) :
         space(hero, 10)
         hero.addView(text(getString(R.string.home_description), 17f, muted = true))
         space(hero, 28)
-        body.addView(hero, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
+        body.addView(View(this), LinearLayout.LayoutParams(1, 0, 1f))
+        body.addView(hero, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         val inputCard = card(body)
         val inputLayout =
             TextInputLayout(this).apply {
@@ -79,6 +88,7 @@ internal class HomeScreen(activity: AppCompatActivity, model: WatchViewModel) :
             TextInputEditText(inputLayout.context).apply {
                 id = R.id.link_input
                 isSaveEnabled = false
+                textDirection = View.TEXT_DIRECTION_LTR
                 inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
                 setSingleLine(true)
                 setText(model.state.value.draft)
@@ -114,10 +124,13 @@ internal class HomeScreen(activity: AppCompatActivity, model: WatchViewModel) :
                 }
             }
         val watch = { model.open(model.state.value.draft) }
-        actions.addView(paste, LinearLayout.LayoutParams(0, dp(56), 1f).apply { marginEnd = dp(8) })
+        actions.addView(
+            paste,
+            LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply { marginEnd = dp(8) },
+        )
         actions.addView(
             action(getString(R.string.watch), R.drawable.ic_play) { watch() },
-            LinearLayout.LayoutParams(0, dp(56), 1f),
+            LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f),
         )
         inputCard.addView(actions)
         entry.setOnEditorActionListener { _, action, _ ->

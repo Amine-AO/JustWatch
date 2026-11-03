@@ -22,6 +22,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.BidiFormatter
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -217,7 +218,11 @@ class MainActivity : AppCompatActivity() {
                     if (state.wizardActive) getString(R.string.set_up_links)
                     else getString(R.string.link_troubleshooting)
                 Screen.DIAGNOSTICS -> getString(R.string.connection_test)
-                else -> getString(R.string.platform_title, LinkPolicy.platform(state.url))
+                else ->
+                    getString(
+                        R.string.platform_title,
+                        BidiFormatter.getInstance().unicodeWrap(LinkPolicy.platform(state.url)),
+                    )
             }
         val media = state.screen in setOf(Screen.LOADING, Screen.PLAYER, Screen.ERROR, Screen.WEB)
         backButton.visibility =

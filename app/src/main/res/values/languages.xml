@@ -1,0 +1,5 @@
+<resources>
+    <string-array name="language_names" translatable="false">
+        <item>English</item><item>العربية</item><item>Français</item><item>Deutsch</item><item>Español</item><item>Português</item><item>简体中文</item><item>Tamazight (Latin)</item><item>ⵜⴰⵎⴰⵣⵉⵖⵜ (ⵜⵉⴼⵉⵏⴰⵖ)</item>
+    </string-array>
+</resources>

@@ -1,9 +1,12 @@
 package com.justwatch.links.ui.screens
 
+import android.annotation.SuppressLint
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.OptIn
@@ -22,6 +25,7 @@ import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
+import androidx.media3.ui.R as Media3R
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.justwatch.links.ExtractedMedia
 import com.justwatch.links.GrowingDownload
@@ -54,7 +58,10 @@ internal class VideoScreen(activity: AppCompatActivity, model: WatchViewModel) :
     }
 
     override fun onStop() {
-        player?.pause()
+        player?.let {
+            model.rememberPlayback(it.currentPosition, it.playWhenReady)
+            it.pause()
+        }
     }
 
     override fun close() {
@@ -100,7 +107,9 @@ internal class VideoScreen(activity: AppCompatActivity, model: WatchViewModel) :
         player = exo
         val playerView =
             activity.layoutInflater.inflate(R.layout.justwatch_player, stage, false) as PlayerView
+        playerView.layoutDirection = View.LAYOUT_DIRECTION_LTR
         playerView.player = exo
+        describeControls(playerView, exo)
         playerView.setShowRewindButton(true)
         playerView.setShowFastForwardButton(true)
         playerView.findViewById<View>(R.id.player_fullscreen).setOnClickListener {
@@ -131,7 +140,8 @@ internal class VideoScreen(activity: AppCompatActivity, model: WatchViewModel) :
         )
         exo.setMediaItem(MediaItem.fromUri(media.url))
         exo.prepare()
-        exo.playWhenReady = false
+        exo.seekTo(model.state.value.positionMs)
+        exo.playWhenReady = model.state.value.wasPlaying
         space(body, 12)
         body.addView(
             text(getString(R.string.player_ready), 14f, muted = true).apply {
@@ -145,6 +155,48 @@ internal class VideoScreen(activity: AppCompatActivity, model: WatchViewModel) :
                 model.navigate(Screen.HOME)
             },
         )
+    }
+
+    @SuppressLint("PrivateResource")
+    private fun describeControls(view: PlayerView, player: ExoPlayer) {
+        // These IDs are the existing Media3 custom-controller contract. Override spoken
+        // labels through Android accessibility APIs, without replacing library strings.
+        val labels =
+            mapOf(
+                Media3R.id.exo_play_pause to
+                    {
+                        if (
+                            player.playWhenReady &&
+                                player.playbackState != Player.STATE_IDLE &&
+                                player.playbackState != Player.STATE_ENDED
+                        )
+                            R.string.pause
+                        else R.string.play
+                    },
+                Media3R.id.exo_rew to { R.string.back_10_seconds },
+                Media3R.id.exo_ffwd to { R.string.forward_10_seconds },
+                Media3R.id.exo_progress to { R.string.playback_progress },
+            )
+        labels.forEach { (id, label) ->
+            view.findViewById<View>(id)?.accessibilityDelegate =
+                object : View.AccessibilityDelegate() {
+                    override fun onInitializeAccessibilityNodeInfo(
+                        host: View,
+                        info: AccessibilityNodeInfo,
+                    ) {
+                        super.onInitializeAccessibilityNodeInfo(host, info)
+                        info.contentDescription = getString(label())
+                    }
+
+                    override fun onInitializeAccessibilityEvent(
+                        host: View,
+                        event: AccessibilityEvent,
+                    ) {
+                        super.onInitializeAccessibilityEvent(host, event)
+                        event.contentDescription = getString(label())
+                    }
+                }
+        }
     }
 
     private fun playbackError(error: PlaybackException): String {

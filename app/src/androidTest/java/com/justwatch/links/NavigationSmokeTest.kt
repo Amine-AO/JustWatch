@@ -97,9 +97,9 @@ class NavigationSmokeTest {
             }
             instrumentation.waitForIdleSync()
             scenario.recreate()
-            onView(withText("Ready when you are. Press Play.")).check(matches(isDisplayed()))
+            onView(withText(R.string.player_ready)).check(matches(isDisplayed()))
             assertTrue("Recreation must retain the temporary file", file.exists())
-            onView(withText("Close video")).perform(click())
+            onView(withText(R.string.close_video)).perform(click())
             awaitDeleted(file)
             assertFalse("Close must remove the retained file", file.exists())
         }
@@ -150,26 +150,28 @@ class NavigationSmokeTest {
     @Test
     fun settingsAreSeparateAndThemeSwitchSurvivesRecreation() {
         ActivityScenario.launch(MainActivity::class.java).use {
-            onView(withText("Enjoy the video. Keep your time.")).check(matches(isDisplayed()))
-            onView(withText("Connection test")).check(doesNotExist())
+            onView(withText(R.string.home_headline)).check(matches(isDisplayed()))
+            onView(withText(R.string.connection_test)).check(doesNotExist())
             onView(withId(R.id.share_app_button)).check(matches(isDisplayed()))
             screenshot("01-watch-light")
             onView(withId(R.id.settings_button)).perform(click())
-            onView(withText("Enable link opening")).check(matches(isDisplayed()))
+            onView(withText(R.string.enable_link_opening)).check(matches(isDisplayed()))
             screenshot("02-settings-light")
-            onView(withText("Enable link opening")).perform(click())
-            onView(withText("Open Android settings")).check(matches(isDisplayed()))
-            onView(withText("Not now")).perform(click())
-            onView(withText("Theme")).perform(scrollTo(), click())
-            onView(withText("Dark")).perform(click())
-            onView(withText("Enable link opening")).check(matches(isDisplayed()))
+            onView(withText(R.string.enable_link_opening)).perform(click())
+            onView(withText(R.string.done_for_now))
+                .perform(scrollTo())
+                .check(matches(isDisplayed()))
+            pressBack()
+            onView(withText(R.string.theme)).perform(scrollTo(), click())
+            onView(withText(R.string.dark)).perform(click())
+            onView(withText(R.string.enable_link_opening)).check(matches(isDisplayed()))
             screenshot("03-settings-dark")
-            onView(withContentDescription("Back")).perform(click())
-            onView(withText("Enjoy the video. Keep your time.")).check(matches(isDisplayed()))
+            onView(withContentDescription(R.string.back)).perform(click())
+            onView(withText(R.string.home_headline)).check(matches(isDisplayed()))
             screenshot("04-watch-dark")
             onView(withId(R.id.settings_button)).perform(click())
-            onView(withText("Connection test")).perform(scrollTo(), click())
-            onView(withText("Ready to test")).check(matches(isDisplayed()))
+            onView(withText(R.string.connection_test)).perform(scrollTo(), click())
+            onView(withText(R.string.ready_to_test)).check(matches(isDisplayed()))
             screenshot("06-connection-test")
         }
     }
@@ -178,13 +180,13 @@ class NavigationSmokeTest {
     fun loadingHasWorkingCancelAndCapturesActualUi() {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { it.showLoading("TikTok") }
-            onView(withId(R.id.loading_title)).check(matches(withText("Loading your video...")))
+            onView(withId(R.id.loading_title)).check(matches(withText(R.string.loading_your_video)))
             onView(withText("JustWatch | TikTok")).check(matches(isDisplayed()))
-            onView(withContentDescription("Back"))
+            onView(withContentDescription(R.string.back))
                 .check(matches(withEffectiveVisibility(Visibility.GONE)))
             screenshot("05-loading")
-            onView(withText("Cancel")).perform(click())
-            onView(withText("Enjoy the video. Keep your time.")).check(matches(isDisplayed()))
+            onView(withText(R.string.cancel)).perform(click())
+            onView(withText(R.string.home_headline)).check(matches(isDisplayed()))
         }
     }
 
@@ -197,7 +199,7 @@ class NavigationSmokeTest {
                 .putExtra(Intent.EXTRA_TEXT, "Shared video https://unsupported.example/video")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         ActivityScenario.launch<MainActivity>(intent).use {
-            onView(withText("Enjoy the video. Keep your time.")).check(matches(isDisplayed()))
+            onView(withText(R.string.home_headline)).check(matches(isDisplayed()))
             onView(withId(R.id.link_input)).check(matches(isDisplayed()))
         }
     }
@@ -234,7 +236,7 @@ class NavigationSmokeTest {
                 Thread.sleep(100)
             }
             assertTrue("Keyboard should be visible", visible)
-            onView(withText("Watch")).check(matches(isDisplayed()))
+            onView(withText(R.string.watch)).check(matches(isDisplayed()))
             scenario.onActivity {
                 val position = IntArray(2)
                 it.findViewById<View>(R.id.settings_button).getLocationOnScreen(position)
@@ -279,9 +281,9 @@ class NavigationSmokeTest {
             }
             assertTrue("Local fixture should prepare", ready)
             onView(withText("JustWatch | Instagram")).check(matches(isDisplayed()))
-            onView(withContentDescription("Back"))
+            onView(withContentDescription(R.string.back))
                 .check(matches(withEffectiveVisibility(Visibility.GONE)))
-            onView(withText("Ready when you are. Press Play.")).check(matches(isDisplayed()))
+            onView(withText(R.string.player_ready)).check(matches(isDisplayed()))
             scenario.onActivity {
                 assertTrue(
                     it.findViewById<View>(androidx.media3.ui.R.id.exo_play_pause).width >=
@@ -290,16 +292,24 @@ class NavigationSmokeTest {
             }
             onView(withId(androidx.media3.ui.R.id.exo_rew)).check(matches(isDisplayed()))
             onView(withId(androidx.media3.ui.R.id.exo_ffwd)).check(matches(isDisplayed()))
-            onView(withContentDescription("Fullscreen")).perform(click())
-            onView(withText("Close video")).check(matches(withEffectiveVisibility(Visibility.GONE)))
-            onView(withContentDescription("Exit fullscreen")).perform(click())
-            onView(withText("Close video")).check(matches(isDisplayed()))
+            onView(withContentDescription(R.string.fullscreen)).perform(click())
+            onView(withText(R.string.close_video))
+                .check(matches(withEffectiveVisibility(Visibility.GONE)))
+            onView(withContentDescription(R.string.exit_fullscreen)).perform(click())
+            onView(withText(R.string.close_video)).check(matches(isDisplayed()))
             screenshot("08-player")
             onView(withId(androidx.media3.ui.R.id.exo_play_pause)).perform(click())
-            onView(withContentDescription("Pause")).check(matches(isDisplayed()))
+            onView(withId(androidx.media3.ui.R.id.exo_play_pause)).check { view, error ->
+                if (error != null) throw error
+                val control = requireNotNull(view)
+                assertEquals(
+                    control.resources.getString(R.string.pause),
+                    control.createAccessibilityNodeInfo().contentDescription.toString(),
+                )
+            }
             onView(withId(androidx.media3.ui.R.id.exo_play_pause)).perform(click())
-            onView(withText("Close video")).perform(click())
-            onView(withText("Enjoy the video. Keep your time.")).check(matches(isDisplayed()))
+            onView(withText(R.string.close_video)).perform(click())
+            onView(withText(R.string.home_headline)).check(matches(isDisplayed()))
             awaitDeleted(fixture!!)
             assertFalse("Close must remove the temporary video", fixture!!.exists())
         }
@@ -364,7 +374,7 @@ class NavigationSmokeTest {
                     fullscreen.left >= duration.right,
                 )
             }
-            onView(withText("Close video")).perform(click())
+            onView(withText(R.string.close_video)).perform(click())
             awaitDeleted(session.file)
             assertFalse("Close must delete the growing download", session.file.exists())
         }
@@ -401,7 +411,7 @@ class NavigationSmokeTest {
                 shell("am force-stop com.android.launcher3")
                 shell("am start -W -n $own/.MainActivity")
                 scenario.onActivity { it.showLinkWizard() }
-                onView(withText("1. Free up your links")).check(matches(isDisplayed()))
+                onView(withText(R.string.wizard_free_links)).check(matches(isDisplayed()))
                 onView(withText("Manage Link test fixture"))
                     .perform(scrollTo())
                     .check(matches(isDisplayed()))
@@ -424,7 +434,7 @@ class NavigationSmokeTest {
                     "Facebook should now launch JustWatch: $resolution",
                     resolution.contains("$own/"),
                 )
-                onView(withText("Enjoy the video. Keep your time.")).check(matches(isDisplayed()))
+                onView(withText(R.string.home_headline)).check(matches(isDisplayed()))
             } finally {
                 shell("pm set-app-links-allowed --user 0 --package $other false")
                 shell("pm set-app-links-user-selection --user 0 --package $own false $hosts")
@@ -441,7 +451,7 @@ class NavigationSmokeTest {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             try {
                 scenario.onActivity { it.showLinkTroubleshooting() }
-                onView(withText("Manage JustWatch links")).perform(scrollTo(), click())
+                onView(withText(R.string.manage_justwatch_links)).perform(scrollTo(), click())
                 assertTrue(
                     context
                         .getSharedPreferences("justwatch", 0)
@@ -468,7 +478,7 @@ class NavigationSmokeTest {
                 assertTrue(
                     prefs.getString("link_after", "")!!.contains("www.instagram.com: enabled")
                 )
-                onView(withText("Copy link diagnostics"))
+                onView(withText(R.string.copy_link_diagnostics))
                     .perform(scrollTo())
                     .check(matches(isDisplayed()))
                 screenshot("10-link-report")

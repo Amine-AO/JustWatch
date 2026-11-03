@@ -24,6 +24,8 @@ Download the signed APK from **Releases**.
 - Watch one video at a time, with no feed or autoplay queue.
 - Use fullscreen, seek through the video, or jump forward and back.
 - Choose a light or dark theme, or follow your device.
+- Follow your phone’s language or choose English, Arabic, French, German, Spanish, Portuguese, Simplified Chinese, or Tamazight in Latin or Tifinagh.
+- Get clearer recovery options when a video fails, and an explanation when a post is confirmed not to contain video.
 - Receive app update prompts, download verified updates, and open Android’s installer.
 - Update the extraction engine separately from Settings without reinstalling the app.
 
@@ -57,7 +59,11 @@ Videos are prepared on your phone, without a JustWatch account or an external ex
 
 JustWatch includes no advertising, analytics or crash-reporting SDKs. The developer does not operate a server that receives your video links or viewing activity. The app connects to video platforms and their media servers, Cloudflare for DNS-over-HTTPS, and GitHub for app and extraction-engine updates. These providers receive connection information such as your IP address. An internet connection is required.
 
+The in-app privacy screen includes a translated summary and access to the full English policy. Translation drafts, especially Tamazight, still need native-speaker review before release; see [localization notes](docs/LOCALIZATION.md).
+
 The optional webpage viewer can use platform cookies and website storage; closing it does not erase that data. See **Settings → Privacy policy** or the [privacy policy source](app/src/main/assets/legal/privacy.html) for details about connections, local storage and deletion. The same notice can be published through GitHub Pages using the [privacy publishing guide](docs/PRIVACY_MAINTENANCE.md).
+
+Photo and text posts are identified only when the platform provides clear evidence. A failed or restricted lookup is not treated as proof that a post has no video. Mixed posts play the first video that can be resolved.
 
 Private, deleted, login-required or restricted videos may not play. Support can also be affected by changes to the platforms.
 

@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.verify.domain.DomainVerificationManager
 import android.content.pm.verify.domain.DomainVerificationUserState
 import android.os.Build
+import androidx.core.text.BidiFormatter
 import java.time.Instant
 
 /** Read-only diagnostics. Domain approval can only be changed in Android settings. */
@@ -30,7 +31,7 @@ object LinkAssociations {
             groups.entries.joinToString("\n") { (name, hosts) ->
                 context.getString(
                     R.string.link_group_summary,
-                    name,
+                    BidiFormatter.getInstance().unicodeWrap(name),
                     hosts.count { enabled(it) },
                     hosts.size,
                 )
