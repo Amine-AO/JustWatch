@@ -118,12 +118,23 @@ internal class WatchViewModel(
     }
 
     fun open(raw: String, local: Boolean = false, progressive: Boolean = true) {
-        val url = LinkPolicy.validated(LinkPolicy.sharedUrl(raw))
-        if (url == null) {
+        val result = LinkPolicy.validate(raw)
+        if (result !is LinkPolicy.Result.Valid) {
             stopPlayback()
-            update { it.copy(screen = Screen.HOME, inputError = UiText(R.string.invalid_link)) }
+            draft(raw)
+            update {
+                it.copy(
+                    screen = Screen.HOME,
+                    inputError =
+                        UiText(
+                            if (result == LinkPolicy.Result.Unsupported) R.string.unsupported_link
+                            else R.string.invalid_link
+                        ),
+                )
+            }
             return
         }
+        val url = result.url
         stopPlayback()
         update {
             it.copy(

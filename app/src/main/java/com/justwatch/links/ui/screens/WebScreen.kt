@@ -69,6 +69,7 @@ internal class WebScreen(activity: AppCompatActivity, model: WatchViewModel) :
                 ): Boolean {
                     if (!request.isForMainFrame) return false
                     val next = request.url
+                    if (!next.scheme.equals("https", true)) return true
                     if (next.toString() == url) return false
                     if (LinkPolicy.validated(next.toString()) == null) return true
                     val path = next.path.orEmpty()

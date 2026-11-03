@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.SystemClock
 import android.view.View
 import android.widget.ScrollView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -68,6 +69,7 @@ class NavigationSmokeTest {
             closeSoftKeyboard()
             onView(withText(R.string.watch)).perform(click())
             onView(withText(R.string.invalid_link)).check(matches(isDisplayed()))
+            onView(withId(R.id.link_input)).check(matches(withText("not-a-link")))
             onView(withId(R.id.link_input))
                 .perform(replaceText("https://www.instagram.com/reel/draft"))
             closeSoftKeyboard()
@@ -217,6 +219,12 @@ class NavigationSmokeTest {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { it.showLoading("TikTok") }
             onView(withId(R.id.loading_title)).check(matches(withText(R.string.loading_your_video)))
+            scenario.onActivity { activity ->
+                val title = activity.findViewById<TextView>(R.id.loading_title)
+                assertEquals(View.TEXT_ALIGNMENT_CENTER, title.textAlignment)
+                val progress = activity.findViewById<View>(R.id.loading_progress)
+                assertEquals(title.left + title.width / 2f, progress.left + progress.width / 2f, 1f)
+            }
             onView(withText("JustWatch | TikTok")).check(matches(isDisplayed()))
             onView(withContentDescription(R.string.back))
                 .check(matches(withEffectiveVisibility(Visibility.GONE)))
@@ -237,6 +245,10 @@ class NavigationSmokeTest {
         ActivityScenario.launch<MainActivity>(intent).use {
             onView(withText(R.string.home_headline)).check(matches(isDisplayed()))
             onView(withId(R.id.link_input)).check(matches(isDisplayed()))
+            onView(withId(R.id.link_input))
+                .check(matches(withText(intent.getStringExtra(Intent.EXTRA_TEXT))))
+            onView(withText(R.string.unsupported_link)).check(matches(isDisplayed()))
+            onView(withId(R.id.loading_progress)).check(doesNotExist())
         }
     }
 

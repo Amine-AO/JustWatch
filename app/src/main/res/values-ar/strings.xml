@@ -11,7 +11,8 @@
     <string name="link_troubleshooting">حل مشكلات الروابط</string>
     <string name="connection_test">اختبار الاتصال</string>
     <string name="link_settings_fallback">افتح إعدادات Android ← التطبيقات ← JustWatch ← الفتح افتراضيًا</string>
-    <string name="invalid_link">استخدم رابط HTTPS من Instagram أو TikTok أو Facebook.</string>
+    <string name="invalid_link">يبدو أن هذا الرابط غير صحيح. تحقّق منه وحاول مجددًا.</string>
+    <string name="unsupported_link">يدعم JustWatch روابط Instagram وTikTok وFacebook. الصق رابطًا من إحدى هذه المنصات.</string>
     <string name="engine_update_failed">فشل التحديث. تم الاحتفاظ بالمحرك المثبّت. %1$s</string>
     <string name="engine_unavailable">تعذّر تشغيل محرك الاستخراج على هذا الجهاز.</string>
     <string name="updates_require_release">ثبّت ملف APK الرسمي الموقّع لتلقّي تحديثات التطبيق.</string>
