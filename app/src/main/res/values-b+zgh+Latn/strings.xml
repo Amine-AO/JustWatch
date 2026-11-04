@@ -11,7 +11,8 @@
     <string name="link_troubleshooting">Aseggem n wuguren n iseɣwan</string>
     <string name="connection_test">Asekyed n tuqqna</string>
     <string name="link_settings_fallback">Ldi isɣewwaren n Android → Isnasen → JustWatch → Ldi s wudem amezwaru</string>
-    <string name="invalid_link">Seqdec aseɣwen HTTPS n Instagram, TikTok neɣ Facebook.</string>
+    <string name="invalid_link">Aseɣwen-a ur iban ara iṣeḥḥa. Senqed-it, ɛreḍ tikkelt nniḍen.</string>
+    <string name="unsupported_link">JustWatch issefrak iseɣwan n Instagram, TikTok d Facebook. Senṭeḍ aseɣwen n yiwet seg tɣerɣertin-a.</string>
     <string name="engine_update_failed">Ur yeddi uleqqem. Amsekkar yettwasbedden yeqqim. %1$s</string>
     <string name="engine_unavailable">Amsekkar n usuffeɣ ur izmir ad yekker ɣef yibenk-a.</string>
     <string name="updates_require_release">Sbedd APK unṣib yettwazemlen i uleqqem n usnas.</string>

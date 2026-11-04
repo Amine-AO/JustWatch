@@ -11,7 +11,8 @@
     <string name="link_troubleshooting">ⴰⵙⴻⴳⴳⴻⵎ ⵏ ⵡⵓⴳⵓⵔⴻⵏ ⵏ ⵉⵙⴻⵖⵡⴰⵏ</string>
     <string name="connection_test">ⴰⵙⴻⴽⵢⴻⴷ ⵏ ⵜⵓⵇⵇⵏⴰ</string>
     <string name="link_settings_fallback">ⵍⴷⵉ ⵉⵙⵖⴻⵡⵡⴰⵔⴻⵏ ⵏ Android → ⵉⵙⵏⴰⵙⴻⵏ → JustWatch → ⵍⴷⵉ ⵙ ⵡⵓⴷⴻⵎ ⴰⵎⴻⵣⵡⴰⵔⵓ</string>
-    <string name="invalid_link">ⵙⴻⵇⴷⴻⵛ ⴰⵙⴻⵖⵡⴻⵏ HTTPS ⵏ Instagram, TikTok ⵏⴻⵖ Facebook.</string>
+    <string name="invalid_link">ⴰⵙⴻⵖⵡⴻⵏ-ⴰ ⵓⵔ ⵉⴱⴰⵏ ⴰⵔⴰ ⵉⵚⴻⵃⵃⴰ. ⵙⴻⵏⵇⴻⴷ-ⵉⵜ, ⵄⵔⴻⴹ ⵜⵉⴽⴽⴻⵍⵜ ⵏⵏⵉⴹⴻⵏ.</string>
+    <string name="unsupported_link">JustWatch ⵉⵙⵙⴻⴼⵔⴰⴽ ⵉⵙⴻⵖⵡⴰⵏ ⵏ Instagram, TikTok ⴷ Facebook. ⵙⴻⵏⵟⴻⴹ ⴰⵙⴻⵖⵡⴻⵏ ⵏ ⵢⵉⵡⴻⵜ ⵙⴻⴳ ⵜⵖⴻⵔⵖⴻⵔⵜⵉⵏ-ⴰ.</string>
     <string name="engine_update_failed">ⵓⵔ ⵢⴻⴷⴷⵉ ⵓⵍⴻⵇⵇⴻⵎ. ⴰⵎⵙⴻⴽⴽⴰⵔ ⵢⴻⵜⵜⵡⴰⵙⴱⴻⴷⴷⴻⵏ ⵢⴻⵇⵇⵉⵎ. %1$s</string>
     <string name="engine_unavailable">ⴰⵎⵙⴻⴽⴽⴰⵔ ⵏ ⵓⵙⵓⴼⴼⴻⵖ ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵢⴻⴽⴽⴻⵔ ⵖⴻⴼ ⵢⵉⴱⴻⵏⴽ-ⴰ.</string>
     <string name="updates_require_release">ⵙⴱⴻⴷⴷ APK ⵓⵏⵚⵉⴱ ⵢⴻⵜⵜⵡⴰⵣⴻⵎⵍⴻⵏ ⵉ ⵓⵍⴻⵇⵇⴻⵎ ⵏ ⵓⵙⵏⴰⵙ.</string>

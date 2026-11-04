@@ -1,6 +1,7 @@
 package com.justwatch.links.ui.screens
 
 import android.graphics.Typeface
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -26,10 +27,11 @@ internal class FailureScreen(activity: AppCompatActivity, model: WatchViewModel)
         if (rendered == content) return
         rendered = content
         container.removeAllViews()
-        val body = scrollPage()
-        space(body, 24)
-        body.addView(logo(48))
-        space(body, 20)
+        val body =
+            scrollPage().apply {
+                gravity = Gravity.CENTER
+                setPaddingRelative(dp(24), dp(24), dp(24), dp(24))
+            }
         val (title, description) =
             when (failure.kind) {
                 FailureKind.NON_VIDEO ->
@@ -45,9 +47,9 @@ internal class FailureScreen(activity: AppCompatActivity, model: WatchViewModel)
                 FailureKind.UNKNOWN ->
                     R.string.video_unavailable to R.string.video_failure_description
             }
-        body.addView(text(getString(title), 26f, bold = true))
+        body.addView(centeredText(getString(title), 26f, bold = true))
         space(body, 12)
-        body.addView(text(getString(description), 16f, muted = true))
+        body.addView(centeredText(getString(description), 16f, muted = true))
         space(body, 24)
         val nonVideo = failure.kind == FailureKind.NON_VIDEO
         val engine = failure.kind == FailureKind.ENGINE
@@ -80,9 +82,17 @@ internal class FailureScreen(activity: AppCompatActivity, model: WatchViewModel)
                 },
             )
             space(body, 8)
-            body.addView(text(getString(R.string.webpage_fallback_hint), 13f, muted = true))
+            body.addView(centeredText(getString(R.string.webpage_fallback_hint), 13f, muted = true))
         }
-        if (!nonVideo) textAction(body, getString(R.string.use_another_link), model::useAnotherLink)
+        if (!nonVideo) {
+            space(body, 12)
+            fullButton(
+                body,
+                action(getString(R.string.use_another_link), R.drawable.ic_link, outlined = true) {
+                    model.useAnotherLink()
+                },
+            )
+        }
         if (failure.details.isNotBlank()) {
             space(body, 12)
             val details =
@@ -90,6 +100,7 @@ internal class FailureScreen(activity: AppCompatActivity, model: WatchViewModel)
                     visibility = View.GONE
                     setTextIsSelectable(true)
                     textDirection = View.TEXT_DIRECTION_LTR
+                    textAlignment = View.TEXT_ALIGNMENT_TEXT_START
                     typeface = Typeface.MONOSPACE
                 }
             textAction(body, getString(R.string.show_details)) { button ->
@@ -98,12 +109,20 @@ internal class FailureScreen(activity: AppCompatActivity, model: WatchViewModel)
                 button.text =
                     getString(if (expanded) R.string.show_details else R.string.hide_details)
             }
-            body.addView(details)
+            body.addView(details, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         }
     }
 
-    private fun textAction(parent: LinearLayout, label: String, click: () -> Unit) =
-        textAction(parent, label) { _: MaterialButton -> click() }
+    private fun centeredText(
+        value: String,
+        size: Float,
+        muted: Boolean = false,
+        bold: Boolean = false,
+    ) =
+        text(value, size, muted, bold).apply {
+            gravity = Gravity.CENTER
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+        }
 
     private fun textAction(parent: LinearLayout, label: String, click: (MaterialButton) -> Unit) {
         val button =

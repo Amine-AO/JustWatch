@@ -11,7 +11,8 @@
     <string name="link_troubleshooting">Résoudre les problèmes de liens</string>
     <string name="connection_test">Test de connexion</string>
     <string name="link_settings_fallback">Ouvrez les paramètres Android → Applications → JustWatch → Ouvrir par défaut</string>
-    <string name="invalid_link">Utilisez un lien HTTPS Instagram, TikTok ou Facebook.</string>
+    <string name="invalid_link">Ce lien ne semble pas correct. Vérifiez-le et réessayez.</string>
+    <string name="unsupported_link">JustWatch prend en charge les liens Instagram, TikTok et Facebook. Collez un lien provenant de l’une de ces plateformes.</string>
     <string name="engine_update_failed">Échec de la mise à jour. Le moteur installé a été conservé. %1$s</string>
     <string name="engine_unavailable">Le moteur d’extraction ne peut pas démarrer sur cet appareil.</string>
     <string name="updates_require_release">Installez l’APK officiel signé pour recevoir les mises à jour.</string>

@@ -13,7 +13,8 @@
     <string name="connection_test">Connection test</string>
     <string name="platform_title" translatable="false">JustWatch | %1$s</string>
     <string name="link_settings_fallback">Open Android Settings → Apps → JustWatch → Set as default</string>
-    <string name="invalid_link">Use an HTTPS link from Instagram, TikTok or Facebook.</string>
+    <string name="invalid_link">This link doesn’t look right. Check it and try again.</string>
+    <string name="unsupported_link">JustWatch supports Instagram, TikTok and Facebook links. Paste a link from one of these platforms.</string>
     <string name="engine_update_failed">Update failed. Your installed extractor was kept. %1$s</string>
     <string name="engine_unavailable">The extractor runtime could not load on this device.</string>
     <string name="updates_require_release">Install the signed release APK to receive app updates.</string>

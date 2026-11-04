@@ -2,8 +2,10 @@ package com.justwatch.links
 
 import android.content.Intent
 import android.net.Uri
+import android.os.SystemClock
 import android.view.View
 import android.widget.ScrollView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -13,14 +15,19 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.PerformException
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.*
 import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.util.TreeIterables
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
+import org.hamcrest.Matcher
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -62,6 +69,7 @@ class NavigationSmokeTest {
             closeSoftKeyboard()
             onView(withText(R.string.watch)).perform(click())
             onView(withText(R.string.invalid_link)).check(matches(isDisplayed()))
+            onView(withId(R.id.link_input)).check(matches(withText("not-a-link")))
             onView(withId(R.id.link_input))
                 .perform(replaceText("https://www.instagram.com/reel/draft"))
             closeSoftKeyboard()
@@ -73,6 +81,36 @@ class NavigationSmokeTest {
     private fun awaitDeleted(file: File) {
         val deadline = System.currentTimeMillis() + 5000
         while (file.exists() && System.currentTimeMillis() < deadline) Thread.sleep(25)
+    }
+
+    private fun awaitView(matcher: Matcher<View>) {
+        // Espresso does not track the IO coroutine that reads Android's link selections.
+        onView(isRoot())
+            .perform(
+                object : ViewAction {
+                    override fun getConstraints(): Matcher<View> = isRoot()
+
+                    override fun getDescription() = "wait for $matcher"
+
+                    override fun perform(controller: UiController, root: View) {
+                        val deadline = SystemClock.uptimeMillis() + 10000
+                        do {
+                            controller.loopMainThreadUntilIdle()
+                            if (
+                                TreeIterables.breadthFirstViewTraversal(root).any(matcher::matches)
+                            ) {
+                                return
+                            }
+                            controller.loopMainThreadForAtLeast(25)
+                        } while (SystemClock.uptimeMillis() < deadline)
+                        throw PerformException.Builder()
+                            .withActionDescription(getDescription())
+                            .withViewDescription(root.toString())
+                            .withCause(AssertionError("Timed out waiting for $matcher"))
+                            .build()
+                    }
+                }
+            )
     }
 
     @Test
@@ -181,6 +219,12 @@ class NavigationSmokeTest {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { it.showLoading("TikTok") }
             onView(withId(R.id.loading_title)).check(matches(withText(R.string.loading_your_video)))
+            scenario.onActivity { activity ->
+                val title = activity.findViewById<TextView>(R.id.loading_title)
+                assertEquals(View.TEXT_ALIGNMENT_CENTER, title.textAlignment)
+                val progress = activity.findViewById<View>(R.id.loading_progress)
+                assertEquals(title.left + title.width / 2f, progress.left + progress.width / 2f, 1f)
+            }
             onView(withText("JustWatch | TikTok")).check(matches(isDisplayed()))
             onView(withContentDescription(R.string.back))
                 .check(matches(withEffectiveVisibility(Visibility.GONE)))
@@ -201,6 +245,10 @@ class NavigationSmokeTest {
         ActivityScenario.launch<MainActivity>(intent).use {
             onView(withText(R.string.home_headline)).check(matches(isDisplayed()))
             onView(withId(R.id.link_input)).check(matches(isDisplayed()))
+            onView(withId(R.id.link_input))
+                .check(matches(withText(intent.getStringExtra(Intent.EXTRA_TEXT))))
+            onView(withText(R.string.unsupported_link)).check(matches(isDisplayed()))
+            onView(withId(R.id.loading_progress)).check(doesNotExist())
         }
     }
 
@@ -411,12 +459,14 @@ class NavigationSmokeTest {
                 shell("am force-stop com.android.launcher3")
                 shell("am start -W -n $own/.MainActivity")
                 scenario.onActivity { it.showLinkWizard() }
+                awaitView(withText(R.string.wizard_free_links))
                 onView(withText(R.string.wizard_free_links)).check(matches(isDisplayed()))
                 onView(withText("Manage Link test fixture"))
                     .perform(scrollTo())
                     .check(matches(isDisplayed()))
                 screenshot("wizard-conflict")
                 scenario.onActivity { it.showLinkTroubleshooting() }
+                awaitView(withText(R.string.manage_justwatch_links))
                 onView(withText("Manage Link test fixture"))
                     .perform(scrollTo())
                     .check(matches(isDisplayed()))
@@ -451,11 +501,28 @@ class NavigationSmokeTest {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             try {
                 scenario.onActivity { it.showLinkTroubleshooting() }
+                awaitView(withText(R.string.manage_justwatch_links))
                 onView(withText(R.string.manage_justwatch_links)).perform(scrollTo(), click())
+                val pendingDeadline = SystemClock.uptimeMillis() + 10000
+                val prefs = context.getSharedPreferences("justwatch", 0)
+                while (
+                    !prefs.getBoolean("link_capture_pending", false) &&
+                        SystemClock.uptimeMillis() < pendingDeadline
+                ) Thread.sleep(25)
                 assertTrue(
-                    context
-                        .getSharedPreferences("justwatch", 0)
-                        .getBoolean("link_capture_pending", false)
+                    "The pre-settings snapshot must finish before changing domain selections",
+                    prefs.getBoolean("link_capture_pending", false),
+                )
+                val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+                val settingsDeadline = SystemClock.uptimeMillis() + 10000
+                while (
+                    automation.rootInActiveWindow?.packageName?.toString() !=
+                        "com.android.settings" && SystemClock.uptimeMillis() < settingsDeadline
+                ) Thread.sleep(25)
+                assertEquals(
+                    "Android's link settings must open before testing the return to JustWatch",
+                    "com.android.settings",
+                    automation.rootInActiveWindow?.packageName?.toString(),
                 )
                 shell(
                     "pm set-app-links-user-selection --user 0 --package $own true www.instagram.com"
@@ -470,7 +537,6 @@ class NavigationSmokeTest {
                         System.currentTimeMillis() < deadline
                 ) Thread.sleep(100)
                 InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-                val prefs = context.getSharedPreferences("justwatch", 0)
                 assertFalse(prefs.getBoolean("link_capture_pending", true))
                 assertTrue(
                     prefs.getString("link_before", "")!!.contains("www.instagram.com: not enabled")

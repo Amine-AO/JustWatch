@@ -11,7 +11,8 @@
     <string name="link_troubleshooting">链接问题排查</string>
     <string name="connection_test">连接测试</string>
     <string name="link_settings_fallback">打开 Android 设置 → 应用 → JustWatch → 默认打开</string>
-    <string name="invalid_link">请使用 Instagram、TikTok 或 Facebook 的 HTTPS 链接。</string>
+    <string name="invalid_link">此链接似乎不正确。请检查后重试。</string>
+    <string name="unsupported_link">JustWatch 支持 Instagram、TikTok 和 Facebook 链接。请粘贴来自其中一个平台的链接。</string>
     <string name="engine_update_failed">更新失败，已保留原解析引擎。%1$s</string>
     <string name="engine_unavailable">无法在此设备上启动解析引擎。</string>
     <string name="updates_require_release">请安装已签名的正式版 APK 以接收应用更新。</string>

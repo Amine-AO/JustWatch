@@ -33,7 +33,11 @@ internal class LoadingScreen(activity: AppCompatActivity, model: WatchViewModel)
     }
 
     private fun build() {
-        val body = fixedPage(center = true).apply { gravity = Gravity.CENTER }
+        val body =
+            fixedPage(center = true).apply {
+                gravity = Gravity.CENTER
+                setPaddingRelative(dp(24), dp(24), dp(24), dp(24))
+            }
         indicator =
             CircularProgressIndicator(this).apply {
                 id = R.id.loading_progress
@@ -46,12 +50,14 @@ internal class LoadingScreen(activity: AppCompatActivity, model: WatchViewModel)
             text(getString(R.string.loading_your_video), 26f, bold = true).apply {
                 id = R.id.loading_title
                 gravity = Gravity.CENTER
+                textAlignment = View.TEXT_ALIGNMENT_CENTER
             },
             LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT),
         )
         detail =
             text("", 15f, muted = true).apply {
                 gravity = Gravity.CENTER
+                textAlignment = View.TEXT_ALIGNMENT_CENTER
                 visibility = View.GONE
             }
         body.addView(detail, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
